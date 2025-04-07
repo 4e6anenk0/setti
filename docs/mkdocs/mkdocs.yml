@@ -1,0 +1,104 @@
+site_name: Documentation
+site_author: Serhii Chebanenko
+#repo_url:
+#repo_name:
+
+theme:
+  name: material
+  logo: assets/setti-white-logo.svg
+  favicon: assets/setti-fav-2.png
+  language: en
+
+  copyright: Copyright &copy; 2025 Serhii Chebanenko
+
+  #font:
+  #  text: Merriweather Sans
+  #  code: Red Hat Mono
+
+  palette:
+    #- primary: teal
+    #- accent: lime
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      #primary: teal
+      #accent: lime
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: green
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: lime
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+
+  features:
+    - navigation.footer # enable the navigation footer
+    - content.code.copy
+
+extra:
+  social: # add social link to footer
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/4e6anenk0
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/serhii-chebanenko-1713a7114/
+
+extra_css:
+  - css/extra.css # add additional css support
+
+markdown_extensions:
+  # added emoji support
+  - attr_list
+  - md_in_html # The Markdown in HTML extension allows for writing Markdown inside of HTML
+  - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  # added code blocks support
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  # added content tabs
+  - pymdownx.tabbed:
+      alternate_style: true
+  # added admonitions
+  - admonition
+  - pymdownx.details
+
+nav:
+  - Overview: index.md
+  - Quick Start: pages/Quick Start.md
+
+plugins:
+  - search
+  - i18n:
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      docs_structure: folder
+      languages:
+        - locale: en
+          default: true
+          name: English
+        - locale: uk
+          name: Українська
+          site_name: Документація
+          nav:
+            - Огляд: index.md
+            - Швидкий старт: pages/Quick Start.md
+

@@ -1,0 +1,2 @@
+color: #68B6FF
+font: Climate Crisis

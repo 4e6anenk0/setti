@@ -1,0 +1,4 @@
+mkdocs-material
+mkdocs-minify-plugin
+mkdocs-glightbox
+mkdocs-static-i18n
