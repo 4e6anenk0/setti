@@ -7,5 +7,7 @@
 pubspec.lock
 
 # mkdocs
-
 venv/
+
+# other
+config.ini
