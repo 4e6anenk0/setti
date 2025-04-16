@@ -23,7 +23,6 @@ class SettingsStorage {
         solutionMsg:
             """Try installing the package required to support the desired storage.
 If the package is already installed, make sure you have mixed it with your custom configuration class based on Setti.""",
-        isPretty: true,
       );
     }
   }

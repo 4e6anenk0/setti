@@ -1,6 +1,5 @@
 import 'setti_error.dart';
 import 'setti_exception.dart';
-import 'setti_warning.dart';
 
 class NotUniqueIdException extends SettiException {
   NotUniqueIdException({
@@ -8,7 +7,6 @@ class NotUniqueIdException extends SettiException {
     super.solutionMsg,
     super.label = "Not Unique ID",
     super.stackTrace,
-    super.isPretty,
   });
 }
 
@@ -18,7 +16,6 @@ class AdapterException extends SettiException {
     super.solutionMsg,
     super.label = "Adapter Exception",
     super.stackTrace,
-    super.isPretty,
   });
 }
 
@@ -28,7 +25,6 @@ class InitializationError extends SettiError {
     super.label = "Initialization Error",
     super.solutionMsg,
     super.stackTrace,
-    super.isPretty,
   });
 }
 
@@ -38,7 +34,6 @@ class SettingNotFoundException extends SettiException {
     super.label = "Setting not found",
     super.solutionMsg,
     super.stackTrace,
-    super.isPretty,
   });
 }
 
@@ -48,7 +43,6 @@ class LocalStorageException extends SettiException {
     super.label = "Local Storage Exception",
     super.solutionMsg,
     super.stackTrace,
-    super.isPretty,
   });
 }
 
@@ -58,7 +52,6 @@ class AppDataPathProviderException extends SettiException {
     super.label = "Platform specific AppData can't be processed correctly",
     super.solutionMsg,
     super.stackTrace,
-    super.isPretty,
   });
 }
 
@@ -68,30 +61,14 @@ class ControllerException extends SettiException {
     super.label = "Invalid Operation",
     super.solutionMsg,
     super.stackTrace,
-    super.isPretty,
   });
 }
 
-/* InvalidOperationException
-
-class SettingNotFoundException implements Exception {
-  final String settingId;
-
-  SettingNotFoundException(this.settingId);
-
-  @override
-  String toString() =>
-      'SettingNotFoundException: Setting with id "$settingId" not found.';
+class ConfigManagerException extends SettiException {
+  ConfigManagerException({
+    required super.msg,
+    super.label = "Config Manager Exception",
+    super.solutionMsg,
+    super.stackTrace,
+  });
 }
-
-class LocalStorageException implements Exception {
-  LocalStorageException(this.message);
-
-  final String message;
-
-  @override
-  String toString() {
-    return "LocalStorageException: $message.";
-  }
-}
- */

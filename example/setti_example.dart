@@ -92,12 +92,9 @@ class AppConfig extends Setti with Ini {
   );
 }
 
-class Config extends SettiManager {
+class Config extends ConfigManager {
   @override
   List<BaseSetti> get configs => [AppConfig()];
-
-  @override
-  ConfigPolicy get missingConfigPolicy => ConfigPolicy.returnDefault;
 }
 
 void main() async {
@@ -142,9 +139,9 @@ void main() async {
   final config = Config();
   await config.init();
 
-  config[AppConfig]![AppConfig.counter];
+  config[AppConfig][AppConfig.counter];
 
-  config.getConfig<AppConfig>()!.get(AppConfig.counter);
+  config.getConfig(AppConfig).get(AppConfig.counter);
 
   //appConfig.applyLayer(layer);
 

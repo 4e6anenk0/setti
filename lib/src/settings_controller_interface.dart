@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'setti_layer.dart';
-import 'setti.dart';
 import 'setting_types/base/setting.dart';
 
 abstract interface class ISettingsController {
@@ -39,20 +38,7 @@ abstract interface class IMatchableSettings {
   FutureOr<void> match();
 }
 
+/// Інтерфейс для опрацювання слоїв конфігурації
 abstract interface class ILayerController {
   void applyLayer(SettiLayer layer);
-}
-
-abstract interface class IConfigsManager {
-  FutureOr<void> update<T extends BaseSetti>(BaseSetting<T> setting);
-
-  FutureOr<T> get<T extends BaseSetti>(BaseSetting<T> setting);
-
-  FutureOr<List<BaseSetti>> getAll();
-
-  FutureOr<bool> remove<T extends BaseSetti>(BaseSetting<T> setting);
-
-  FutureOr<bool> clear<T extends BaseSetti>();
-
-  FutureOr<bool> contains<T extends BaseSetti>(BaseSetting<T> setting);
 }

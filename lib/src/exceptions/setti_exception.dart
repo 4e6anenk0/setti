@@ -9,7 +9,6 @@ class SettiException implements Exception {
     required this.msg,
     required this.label,
     this.solutionMsg = "",
-    this.isPretty = false,
     this.stackTrace,
   });
 
@@ -17,31 +16,20 @@ class SettiException implements Exception {
   final String solutionMsg;
   final String label;
 
-  final bool isPretty;
-
   final StackTrace? stackTrace;
 
   SettiException.withStackTrace({
     required this.msg,
     required this.label,
     this.solutionMsg = "",
-    this.isPretty = false,
     StackTrace? stackTrace,
   }) : stackTrace = stackTrace ?? StackTrace.current;
-
-  String prettifyMsg() {
-    final solutionPart =
-        solutionMsg.isNotEmpty ? "\n💡 Solution: $solutionMsg" : "";
-    return "❌ $label: $msg\n$solutionPart";
-  }
 
   @override
   String toString() {
     final stackPart = stackTrace != null ? "\nStackTrace: $stackTrace" : "";
     final solutionPart =
         solutionMsg.isNotEmpty ? "\nSolution: $solutionMsg" : "";
-    return isPretty
-        ? prettifyMsg() + stackPart
-        : "$label: $msg $solutionPart $stackPart";
+    return "$label: $msg $solutionPart $stackPart";
   }
 }

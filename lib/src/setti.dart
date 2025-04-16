@@ -114,8 +114,7 @@ abstract class BaseSetti
     } catch (e) {
       throw InitializationError(
           msg:
-              "Initialization failed, and the settings were not applied. ${e.toString()}",
-          isPretty: true);
+              "Initialization failed, and the settings were not applied. ${e.toString()}");
     }
   }
 

@@ -2,50 +2,50 @@ import 'dart:async';
 
 import '../setti.dart';
 
-enum ConfigPolicy { returnNull, throwException, returnDefault }
+enum ConfigPolicy {
+  returnNull,
+  throwException,
+  returnDefault,
+}
 
-abstract class SettiManager {
+abstract class ConfigManager {
+  final Map<Type, BaseSetti> _initializedConfigs = {};
+
+  final List<String> _notInitializedConfigs = [];
+
+  List<BaseSetti> get configs;
+
   Future<void> init() async {
-    for (BaseSetti config in configs) {
+    for (final config in configs) {
       await config.init();
-
       if (config.isInitialized) {
         _initializedConfigs[config.runtimeType] = config;
+      } else {
+        _notInitializedConfigs.add(config.name);
       }
     }
   }
 
-  ConfigPolicy get missingConfigPolicy => ConfigPolicy.returnDefault;
-  List<BaseSetti> get configs;
+  BaseSetti operator [](Type configType) => getConfig(configType);
 
-  final Map<Type, BaseSetti> _initializedConfigs = {};
+  BaseSetti getConfig(Type configType) {
+    final config = _initializedConfigs[configType];
 
-  BaseSetti? operator [](Type configType) {
-    return _initializedConfigs[configType] ??
-        _missingConfigPolicy(defaultPolicy: missingConfigPolicy);
-  }
+    if (config != null) return config;
 
-  T? getConfig<T extends BaseSetti>() {
-    return _initializedConfigs[T] ??
-        _missingConfigPolicy(defaultPolicy: missingConfigPolicy);
-  }
+    throw ConfigManagerException(
+      msg: '''
+Config of type `$configType` was requested but not found.
 
-  _missingConfigPolicy<T extends BaseSetti>({
-    required ConfigPolicy defaultPolicy,
-    BaseSetting? setting,
-  }) {
-    switch (defaultPolicy) {
-      case ConfigPolicy.returnNull:
-        return null;
+Possible reasons:
+- The config was never initialized.
+- The platform-specific setup may be incorrect.
 
-      case ConfigPolicy.throwException:
-        throw StateError("Configuration is not initialized!");
-
-      case ConfigPolicy.returnDefault:
-        if (setting == null) {
-          throw SettingNotFoundException(msg: "No default value!");
-        }
-        return setting.defaultValue;
-    }
+Not initialized configs:
+${_notInitializedConfigs.join(', ')}
+''',
+      solutionMsg:
+          'Ensure that `$configType` is properly initialized before accessing it, or that its target platform matches the current platform.',
+    );
   }
 }
