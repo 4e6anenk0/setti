@@ -8,6 +8,19 @@ import '../base/setting.dart';
 /// methods similar to those in a standard Setting. The difference is its
 /// ability to handy use Enum in a local storage for re-mapping with
 /// the corresponding Enum after initialized new session.
+///
+/// The [defaultValue] must be one of the [values].
+///
+/// Example usage:
+/// ```dart
+/// enum Theme { light, dark }
+/// final themeSetting = EnumSetting(
+///   id: 'THEME',
+///   values: Theme.values,
+///   defaultValue: Theme.light,
+/// );
+/// final updatedSetting = themeSetting.copyWith(defaultValue: Theme.dark);
+/// ```
 class EnumSetting<T extends Enum> extends BaseSetting<T> {
   const EnumSetting({
     required this.values,
@@ -18,8 +31,9 @@ class EnumSetting<T extends Enum> extends BaseSetting<T> {
   });
 
   @override
-  String get type => 'EnumProperty';
+  String get type => 'EnumSetting';
 
+  /// The list of possible Enum values, typically obtained from `Enum.values`.
   final List<T> values;
 
   EnumSetting<T> copyWith({
@@ -28,6 +42,12 @@ class EnumSetting<T extends Enum> extends BaseSetting<T> {
     SaveMode? saveMode,
     bool? declarative,
   }) {
+    if (values == this.values &&
+        defaultValue == this.defaultValue &&
+        saveMode == this.saveMode &&
+        declarative == this.declarative) {
+      return this;
+    }
     return EnumSetting(
       values: values ?? this.values,
       defaultValue: defaultValue ?? this.defaultValue,

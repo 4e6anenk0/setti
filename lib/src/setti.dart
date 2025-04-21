@@ -19,7 +19,9 @@ abstract class BaseSetti
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
 
-  /// Визначте декларативні налаштування і передайте їх через цей геттер.
+  /// Defines the declarative settings to be used by this configuration.
+  ///
+  /// Preferably return a const list to optimize performance.
   List<BaseSetting> get settings;
 
   SettiController get controller => _controller;
@@ -65,6 +67,10 @@ abstract class BaseSetti
     return _appliedLayers.values.any((value) => value.contains(name));
   }
 
+  /// Initializes the configuration with optional layers.
+  ///
+  /// If [layers] is provided, the configuration uses settings from the layer
+  /// matching the current platform. Otherwise, it uses the default [settings].
   Future<void> init({Set<SettiLayer>? layers}) async {
     if (layers == null) {
       if (!isCorrectPlatform()) return;
@@ -172,7 +178,7 @@ abstract class BaseSetti
     return _controller.contains(setting);
   }
 
-  /// Дозволяє зберегти новий стан локальних налаштувань змінених через сесію
+  /// Saves the current state of local settings modified during the session.
   @override
   Future<void> match() async {
     await _controller.match();

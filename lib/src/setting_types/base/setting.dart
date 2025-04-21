@@ -27,12 +27,13 @@ abstract class BaseSetting<T> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Setting &&
+      other is BaseSetting &&
+          id == other.id &&
           runtimeType == other.runtimeType &&
           defaultValue == other.defaultValue;
 
   @override
-  int get hashCode => defaultValue.hashCode;
+  int get hashCode => Object.hash(id, defaultValue);
 }
 
 /// Represents a specific application setting with declarative configuration.
@@ -56,7 +57,7 @@ class Setting<T> extends BaseSetting<T> {
   });
 
   @override
-  String get type => 'Property';
+  String get type => 'Setting';
 
   /// Creates a new setting instance with modified values,
   /// preserving the immutability of the original object.
@@ -66,9 +67,13 @@ class Setting<T> extends BaseSetting<T> {
   /// It prevents redundant object creation and reduces the risk of errors.
   ///
   /// Example usage:
-  ///
   /// ```dart
-  /// context.updateSetting(counterSetting.copyWith(defaultValue: newValue));
+  /// final counter = Setting(id: 'COUNTER', defaultValue: 0);
+  /// final updatedCounter = counter.copyWith(defaultValue: 5);
+  /// final path = Setting(id: 'PATH', defaultValue: '/home');
+  /// final updatedPath = path.copyWith(defaultValue: '/tmp');
+  /// context.updateSetting(updatedCounter);
+  /// context.updateSetting(path.copyWith(defaultValue: '/'));
   /// ```
   ///
   /// Instead of manually creating a nearly identical setting object,
@@ -78,6 +83,11 @@ class Setting<T> extends BaseSetting<T> {
     SaveMode? saveMode,
     bool? declarative,
   }) {
+    if (defaultValue == this.defaultValue &&
+        saveMode == this.saveMode &&
+        declarative == this.declarative) {
+      return this;
+    }
     return Setting(
       defaultValue: defaultValue ?? this.defaultValue,
       id: id,
