@@ -227,9 +227,11 @@ class SettiController implements ISettingsController {
     var value = await _storage.getSetting(setting.id, setting.defaultValue);
     if (value == null) {
       if (setting.declarative == false) {
-        throw Exception(
-            "❌ Configuration error: Setting '${setting.id}' is not declarative and must be stored locally.\n"
-            "💡 Solution: Ensure that '${setting.id}' is stored in local storage.");
+        throw ControllerException(
+            msg:
+                "Setting '${setting.id}' is not declarative and must be stored locally.\n",
+            solutionMsg:
+                "Ensure that '${setting.id}' is stored in local storage.");
       } else {
         await _initSetting(setting);
       }
@@ -282,11 +284,7 @@ class SettiController implements ISettingsController {
         // if the key is in the list of current keys,
         // then there is no need to delete in settings, it is still actuality
         if (!_localSettings.containsKey(key)) {
-          print("Remove settings: $key");
-
           Future.value(_storage.removeSetting(key));
-
-          //new
           _storage.removeCacheFor(key);
           _localSettings.remove(key);
         }
@@ -379,74 +377,7 @@ class SettiController implements ISettingsController {
 
       await _makeSettingsSnapshot();
     }
-    /* await _makeSettingsSnapshot();
-    await clearCache(); */
 
     return true;
   }
 }
-
-/* class SettingsController implements ISettingsController {
-  SettingsController(
-      {required List<BaseSetting> settings,
-      required ISettingsWorker settingsWorker})
-      : _settings = settings,
-        _worker = settingsWorker;
-
-  final List<BaseSetting> _settings;
-  final ISettingsWorker _worker;
-  final ISettingConverter _converter = SettingConverter();
-
-  @override
-  FutureOr<bool> clear() async {
-    await _worker.clear();
-    return true;
-  }
-
-  FutureOr<void> setSettings() async {
-    for (BaseSetting setting in _settings) {
-      await _worker.setSetting(setting.id, setting.defaultValue);
-    }
-  }
-
-  @override
-  FutureOr<T> get<T>(BaseSetting<T> setting) async {
-    var value = await _worker.getSetting(setting.id, setting.defaultValue);
-
-    assert(
-      value != null,
-      'Setting with id ${setting.id} was not found. Please ensure all required settings are provided.',
-    );
-
-    return value != null
-        ? _converter.convertValue(value, setting)
-        : setting.defaultValue;
-  }
-
-  @override
-  FutureOr<bool> contains<T>(BaseSetting<T> setting) async {
-    return await _worker.contains(setting.id);
-  }
-
-  @override
-  FutureOr<bool> remove<T>(BaseSetting<T> setting) async {
-    await _worker.removeSetting(setting.id);
-    return true;
-  }
-
-  @override
-  FutureOr<void> update<T>(BaseSetting<T> setting) async {
-    assert(
-      await _worker.contains(setting.id),
-      'Setting with id ${setting.id} was not found. Please ensure all required settings are provided.',
-    );
-    var adaptedSetting = _converter.convertTo(setting);
-    await _worker.setSetting(adaptedSetting.id, adaptedSetting.defaultValue);
-  }
-
-  @override
-  FutureOr<HashMap<String, Object>> getAll() {
-    // TODO: implement getAll
-    throw UnimplementedError();
-  }
-} */
