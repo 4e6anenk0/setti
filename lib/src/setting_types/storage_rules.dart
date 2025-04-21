@@ -1,8 +1,8 @@
 enum SaveMode {
-  local, // Збереження локально
-  session, // Збереження в сесії
-  transitional, // Перехідне збереження
-  custom // Власна логіка збереження
+  local, // Saving locally
+  session, // Saving in session
+  transitional, // Transitional saving
+  custom // Custom saving logic
 }
 
 enum LoadMode { lazy, preload }
