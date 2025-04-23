@@ -31,7 +31,7 @@ mixin Ini on BaseSetti {
 }
 
 @internal
-class IniStorage implements ISettingsStorage {
+class IniStorage extends ISettingsStorage {
   IniStorage(String path, String sectionName, String fileName)
       : _path = path,
         _sectionName = sectionName,

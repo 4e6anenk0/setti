@@ -77,19 +77,16 @@ abstract class BaseSetti
   /// If [layers] is provided, the configuration uses settings from the layer
   /// matching the current platform. Otherwise, it uses the default [settings].
   Future<void> init() async {
-    if (_isInitialized) return; // Предотвращаем повторную инициализацию
+    if (_isInitialized) return;
 
     final currentPlatform = getCurrentPlatform();
-    List<BaseSetting> combinedSettings =
-        List.from(settings); // Базовые настройки
+    List<BaseSetting> combinedSettings = List.from(settings);
 
     if (layers.isNotEmpty) {
-      // Фильтруем слои по платформе (включая general)
       final applicableLayers = layers
           .where((layer) => layer.platforms.contains(currentPlatform))
           .toList();
 
-      // Объединяем настройки из всех слоев
       for (final layer in applicableLayers) {
         _activeLayers.add(layer);
         _appliedLayers

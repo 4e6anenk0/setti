@@ -10,7 +10,7 @@ mixin Yaml on BaseSetti {
   Set<ISettingsStorage> get storages => {};
 }
 
-class YamlStorage implements ISettingsStorage {
+class YamlStorage extends ISettingsStorage {
   @override
   Future<void> clear() {
     throw UnimplementedError();
