@@ -10,7 +10,10 @@ import 'settings_controller_interface.dart';
 import 'storage/session_storage.dart';
 import 'storage/storage_overlay.dart';
 
-/// A controller that allows you to manage immutable settings configuration
+/// A controller for managing immutable settings configurations.
+///
+/// Provides methods for initializing, updating, and retrieving settings,
+/// with support for both local and session storage.
 class SettiController implements ISettingsController {
   SettiController._({
     List<BaseSetting>? settings,
@@ -24,7 +27,8 @@ class SettiController implements ISettingsController {
         _storage = storageOverlay,
         _caseFormat = caseFormat;
 
-  /// Lazy controller. Need to init controller late
+  /// Creates a controller with lazy initialization.
+  /// Call [init] to initialize the controller when needed.
   factory SettiController.lazy({
     List<BaseSetting>? settings,
     required ISettingConverter converter,
@@ -43,12 +47,10 @@ class SettiController implements ISettingsController {
     return controller;
   }
 
-  /// A static method that allows you to create and initialize a controller asynchronously.
+  /// Creates and initializes a controller asynchronously.
   ///
-  /// This will allow you to get the data stored in SharedPreferences,
-  /// but may cause a delay, for example, if there is a lot of data.
-  ///
-  /// `SettingsController.consist()` must be used in an asynchronous function.
+  /// Loads data from storage (e.g., SharedPreferences), which may cause a delay
+  /// if the data volume is large. Use in an asynchronous context.
   static Future<SettiController> consist({
     List<BaseSetting>? settings,
     required ISettingConverter converter,
@@ -107,6 +109,7 @@ class SettiController implements ISettingsController {
 
   bool _isSessionOnly = false;
 
+  /// Initializes the controller, loading settings into session and local storage.
   Future<void> init() async {
     if (!_isInitialized) {
       await _init();
@@ -114,8 +117,9 @@ class SettiController implements ISettingsController {
   }
 
   Future<void> _init() async {
+    // TODO: Додати обробку коли немає налаштувань
     if (_isDebug) {
-      _storage.clear();
+      await _storage.clear();
     }
 
     _snapshot = Setting(
@@ -139,7 +143,9 @@ class SettiController implements ISettingsController {
     _isInitialized = true;
   }
 
+  /// Restores the snapshot of saved settings from local storage.
   Future<void> _restoreSnapshot() async {
+    // TODO: Зробити явну обробку snapshotData != null
     if (await _storage.contains(_snapshot.id)) {
       List<String>? snapshotData =
           await _storage.getSetting(_snapshot.id, _snapshot.defaultValue);
@@ -181,12 +187,10 @@ class SettiController implements ISettingsController {
   }
 
   Future<void> _initSettings(List<BaseSetting> settings) async {
-    //assert(_isAllUnique(settings), "A non-unique ID was passed");
+    // TODO: Подумати про обробку і створення списків, так-як це може бути не оптимізовано
     if (_isSessionOnly) {
       _setSessionSettings(_sessionSettings.values.toList());
-      //await _setNotDeclarativeSettings(_notDeclarativeSettings.values.toList());
     } else {
-      //await _setNotDeclarativeSettings(_notDeclarativeSettings.values.toList());
       await _setLocalSettings(_localSettings.values.toList());
       _setSessionSettings(_sessionSettings.values.toList());
 
@@ -206,12 +210,12 @@ class SettiController implements ISettingsController {
   }
 
   Future<void> _setLocalSettings(List<Setting> localProperties) async {
+    // TODO: перевірка _snapshot.defaultValue.contains(setting.id) не враховує,
+    // TODO: що _snapshot.defaultValue може бути порожнім або null
     for (Setting setting in localProperties) {
       if (!setting.declarative) {
         await _restoreSetting(setting);
       } else {
-        /* if (_snapshot.defaultValue.isNotEmpty &&
-            _snapshot.defaultValue.contains(_storage.prefixed(setting))) { */
         if (_snapshot.defaultValue.isNotEmpty &&
             _snapshot.defaultValue.contains(setting.id)) {
           await _restoreSetting(setting);
@@ -252,32 +256,30 @@ class SettiController implements ISettingsController {
     }
   }
 
-  /// Method to create a snapshot.
+  /// Creates a snapshot of current local settings to track active keys.
   ///
   /// The snapshot allows you to clear the local storage
   Future<void> _makeSettingsSnapshot() async {
-    List<String> keysList = [];
-
-    for (Setting setting in _localSettings.values) {
-      //keysList.add(_storage.prefixed(setting));
-      keysList.add(setting.id);
-    }
-
-    Setting snapshotProperty = _snapshot.copyWith(defaultValue: keysList);
+    var keysList = _localSettings.keys.toList();
+    var snapshotProperty = _snapshot.copyWith(defaultValue: keysList);
     await _storage.setSetting(
         snapshotProperty.id, snapshotProperty.defaultValue);
   }
 
+  /// Clears unused settings from local storage based on the snapshot.
+  ///
   /// A method that helps to remove settings that are not in the
-  /// current list of properties and clear unused keys dump
+  /// current list of settings and clear unused keys dump
   Future<void> clearCache() async {
+    // TODO: У clearCache використовується Future.forEach, що може бути повільним
+    // TODO: для великих списків. Крім того, видалення виконується асинхронно без очікування завершення.
     if (await _storage.contains(_snapshot.id)) {
       // if the snapshot already exists, we get it
       List<String>? snapshot =
           await _storage.getSetting(_snapshot.id, _snapshot.defaultValue);
 
       if (snapshot == null) {
-        throw Exception();
+        throw Exception('Snapshot is null');
       }
 
       await Future.forEach(snapshot, (key) {
@@ -316,6 +318,7 @@ class SettiController implements ISettingsController {
   }
 
   Future<void> match() async {
+    // TODO: Додати пакетну обробку
     if (_settings != null) {
       for (Setting setting in _localSettings.values) {
         if (setting.saveMode == SaveMode.local &&
@@ -337,7 +340,6 @@ class SettiController implements ISettingsController {
   T get<T>(BaseSetting<T> setting) {
     if (_session.contains(setting.id)) {
       var value = _session.getSetting(setting.id, setting.defaultValue);
-      print("Get: $value");
       return _converter.convertValue(value, setting);
     } else {
       throw SettingNotFoundException(

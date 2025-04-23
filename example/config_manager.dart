@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:setti/setti.dart';
 
-class AltConfig extends SettiLayer {
-  AltConfig();
+class LinuxConfig extends SettiLayer {
+  LinuxConfig();
 
   @override
-  String get name => 'MainLayer';
+  String get name => 'LinuxLayer';
 
   @override
   List<SettiPlatform> get platforms => SettiPlatforms.linux;
@@ -19,11 +19,14 @@ class AltConfig extends SettiLayer {
       AppConfig.pathToProfiler.copyWith(defaultValue: '~/.src/profiler.txt');
 }
 
-class AltConfig2 extends SettiLayer {
-  AltConfig2();
+class MacConfig extends SettiLayer {
+  MacConfig();
 
   @override
-  List<SettiPlatform> get platforms => SettiPlatforms.linux;
+  String get name => 'MacLayer';
+
+  @override
+  List<SettiPlatform> get platforms => SettiPlatforms.macos;
 
   @override
   List<BaseSetting> get settings => [counter, pathToProfiler];
