@@ -35,12 +35,24 @@ class MacConfig extends SettiLayer {
   final pathToProfiler = AppConfig.pathToProfiler.copyWith(defaultValue: '~/');
 }
 
+class WindowsConfig extends SettiLayer {
+  @override
+  List<SettiPlatform> get platforms => SettiPlatforms.windows;
+
+  @override
+  List<BaseSetting> get settings => [counter, pathToProfiler];
+
+  final counter = AppConfig.counter.copyWith(defaultValue: 2);
+  final pathToProfiler =
+      AppConfig.pathToProfiler.copyWith(defaultValue: 'C:\\.src\\profiler.txt');
+}
+
 class AppConfig extends Setti with Ini {
   @override
   List<BaseSetting> get settings => [counter, pathToProfiler];
 
   @override
-  List<SettiPlatform> get platforms => SettiPlatforms.windows;
+  List<SettiPlatform> get platforms => SettiPlatforms.general;
 
   @override
   String get name => "APP_CONFIG";
@@ -49,16 +61,22 @@ class AppConfig extends Setti with Ini {
   SettiConfig get config =>
       storageConfig.copyWith(useModelPrefix: false, useSettiPrefix: true);
 
-  static final counter = Setting(
+  static const counter = Setting(
     id: 'COUNTER',
     defaultValue: 0,
     saveMode: SaveMode.local,
     //declarative: false,
   );
 
-  static final pathToProfiler = Setting(
+  static const pathToProfiler = Setting(
     id: 'PROFILER',
-    defaultValue: 'C:\\.src\\profiler.txt',
+    defaultValue: '',
+    saveMode: SaveMode.local,
+  );
+
+  static const generalSetting = Setting(
+    id: 'GENERAL',
+    defaultValue: 'general',
     saveMode: SaveMode.local,
   );
 }
@@ -72,7 +90,11 @@ void main() async {
   final config = Config();
   await config.init();
 
-  config[AppConfig][AppConfig.counter];
+  print(config[AppConfig][AppConfig.counter]);
 
-  config.getConfig(AppConfig).get(AppConfig.counter);
+  print(config.getConfig(AppConfig).get(AppConfig.counter));
+
+  print(config.getConfig(AppConfig).getCurrentPlatform());
+
+  print(config[AppConfig].get(AppConfig.generalSetting));
 }

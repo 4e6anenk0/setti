@@ -91,7 +91,6 @@ abstract class BaseSetti
         await _init(settings);
       }
     }
-    print(_isInitialized);
   }
 
   Future<void> _init(List<BaseSetting> settings) async {
