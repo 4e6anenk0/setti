@@ -49,7 +49,14 @@ class WindowsConfig extends SettiLayer {
 
 class AppConfig extends Setti with Ini {
   @override
-  List<BaseSetting> get settings => [counter, pathToProfiler];
+  List<BaseSetting> get settings => [counter, pathToProfiler, generalSetting];
+
+  @override
+  List<SettiLayer> get layers => [
+        MacConfig(),
+        LinuxConfig(),
+        WindowsConfig(),
+      ];
 
   @override
   List<SettiPlatform> get platforms => SettiPlatforms.general;
@@ -97,4 +104,6 @@ void main() async {
   print(config.getConfig(AppConfig).getCurrentPlatform());
 
   print(config[AppConfig].get(AppConfig.generalSetting));
+
+  print(config[AppConfig].appliedLayers);
 }

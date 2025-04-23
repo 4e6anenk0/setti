@@ -24,6 +24,9 @@ abstract class BaseSetti
   /// Preferably return a const list to optimize performance.
   List<BaseSetting> get settings;
 
+  /// Defines the layers for initialization
+  List<SettiLayer> get layers => [];
+
   SettiController get controller => _controller;
 
   late final SettiController _controller;
@@ -54,9 +57,11 @@ abstract class BaseSetti
 
   final SettingConverter converter = SettingConverter();
 
-  Map<String, String> get appliedLayers => _appliedLayers;
+  Map<String, List<String>> get appliedLayers => _appliedLayers;
 
-  final Map<String, String> _appliedLayers = {};
+  final Map<String, List<String>> _appliedLayers = {};
+
+  final List<SettiLayer> _activeLayers = [];
 
   bool isCorrectPlatform() {
     if (platforms.contains(getCurrentPlatform())) return true;
@@ -71,12 +76,58 @@ abstract class BaseSetti
   ///
   /// If [layers] is provided, the configuration uses settings from the layer
   /// matching the current platform. Otherwise, it uses the default [settings].
-  Future<void> init({Set<SettiLayer>? layers}) async {
+  Future<void> init() async {
+    if (_isInitialized) return; // Предотвращаем повторную инициализацию
+
+    final currentPlatform = getCurrentPlatform();
+    List<BaseSetting> combinedSettings =
+        List.from(settings); // Базовые настройки
+
+    if (layers.isNotEmpty) {
+      // Фильтруем слои по платформе (включая general)
+      final applicableLayers = layers
+          .where((layer) => layer.platforms.contains(currentPlatform))
+          .toList();
+
+      // Объединяем настройки из всех слоев
+      for (final layer in applicableLayers) {
+        _activeLayers.add(layer);
+        _appliedLayers
+            .putIfAbsent('InitialLayer', () => [])
+            .add("${layer.name}-${layer.runtimeType}");
+        combinedSettings = _mergeSettings(combinedSettings, layer.settings);
+      }
+    }
+
+    if (_activeLayers.isEmpty && !isCorrectPlatform()) {
+      return;
+    }
+
+    await _init(combinedSettings);
+  }
+
+  List<BaseSetting> _mergeSettings(
+      List<BaseSetting> baseSettings, List<BaseSetting> layerSettings) {
+    final settingsMap = {
+      for (var setting in baseSettings) setting.id: setting,
+    };
+
+    for (final layerSetting in layerSettings) {
+      settingsMap[layerSetting.id] = layerSetting;
+    }
+
+    return settingsMap.values.toList();
+  }
+  /* Future<void> init({Set<SettiLayer>? layers}) async {
+    if (_isInitialized) return;
+
     if (layers == null) {
       if (!isCorrectPlatform()) return;
       await _init(settings);
     } else {
+
       final currentPlatform = getCurrentPlatform();
+
       SettiLayer? actualLayer = layers
           .where((layer) => layer.platforms.contains(currentPlatform))
           .toList()
@@ -91,7 +142,7 @@ abstract class BaseSetti
         await _init(settings);
       }
     }
-  }
+  } */
 
   Future<void> _init(List<BaseSetting> settings) async {
     _storage = SettingsStorage.getInstance();
@@ -105,7 +156,8 @@ abstract class BaseSetti
       List<Type> types =
           storages.map((storage) => storage.runtimeType).toList();
 
-      var overlay = StorageOverlay(storages: types, prefix: configurePrefix());
+      final overlay =
+          StorageOverlay(storages: types, prefix: configurePrefix());
 
       _controller = await SettiController.consist(
         converter: converter,
@@ -192,9 +244,30 @@ abstract class BaseSetti
   void applyLayer(SettiLayer layer) {
     for (BaseSetting setting in layer.settings) {
       _controller.update(setting, sessionOnly: true);
-      _appliedLayers['SessionLayer'] = "${layer.name}, ${layer.runtimeType}";
+      _appliedLayers
+          .putIfAbsent('SessionLayer', () => [])
+          .add("${layer.name}-${layer.runtimeType}");
     }
   }
+
+  /* @override
+  void applyLayer(SettiLayer layer) {
+    if (_activeLayers.contains(layer)) return; // Избегаем дублирования
+
+    _activeLayers.add(layer);
+    _appliedLayers
+        .putIfAbsent('SessionLayer', () => [])
+        .add("${layer.name}, ${layer.runtimeType}");
+
+    // Обновляем настройки контроллера
+    final combinedSettings = _mergeSettings(
+      _controller.settings, // Текущие настройки контроллера
+      layer.settings,
+    );
+    // TODO: Добавить пакетную обработку
+    // Обновляем контроллер с новыми настройками
+    _controller.updateSettings(combinedSettings, sessionOnly: true);
+  } */
 
   @override
   FutureOr<bool> remove<T>(BaseSetting<T> setting) async {
