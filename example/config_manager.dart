@@ -105,5 +105,17 @@ void main() async {
 
   print(config[AppConfig].get(AppConfig.generalSetting));
 
+  //config[AppConfig][AppConfig.counter] += 10;
+
+  //config[AppConfig][AppConfig.generalSetting] = 'new string';
+  /* config[AppConfig]
+      .update(AppConfig.generalSetting.copyWith(defaultValue: 'new string')); */
+
+  config[AppConfig].mut(AppConfig.generalSetting, (value) => "new string");
+
+  //await config[AppConfig].match();
+
+  print(config[AppConfig][AppConfig.counter]);
+
   print(config[AppConfig].appliedLayers);
 }

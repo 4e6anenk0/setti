@@ -21,11 +21,13 @@ class SettiController implements ISettingsController {
     required StorageOverlay storageOverlay,
     required CaseFormat caseFormat,
     bool isDebug = false,
+    bool autoManageStorageMode = true,
   })  : _settings = settings,
         _isDebug = isDebug,
         _converter = converter,
         _storage = storageOverlay,
-        _caseFormat = caseFormat;
+        _caseFormat = caseFormat,
+        _autoManageStorageMode = autoManageStorageMode;
 
   /// Creates a controller with lazy initialization.
   /// Call [init] to initialize the controller when needed.
@@ -35,6 +37,7 @@ class SettiController implements ISettingsController {
     required StorageOverlay storageOverlay,
     required CaseFormat caseFormat,
     bool isDebug = false,
+    bool autoManageStorageMode = true,
   }) {
     SettiController controller = SettiController._(
       settings: settings,
@@ -42,6 +45,7 @@ class SettiController implements ISettingsController {
       storageOverlay: storageOverlay,
       isDebug: isDebug,
       caseFormat: caseFormat,
+      autoManageStorageMode: autoManageStorageMode,
     );
 
     return controller;
@@ -57,6 +61,7 @@ class SettiController implements ISettingsController {
     required StorageOverlay storageOverlay,
     required CaseFormat caseFormat,
     bool isDebug = false,
+    bool autoManageStorageMode = true,
   }) async {
     SettiController controller = SettiController._(
       settings: settings,
@@ -64,6 +69,7 @@ class SettiController implements ISettingsController {
       storageOverlay: storageOverlay,
       isDebug: isDebug,
       caseFormat: caseFormat,
+      autoManageStorageMode: autoManageStorageMode,
     );
 
     await controller._init();
@@ -89,9 +95,6 @@ class SettiController implements ISettingsController {
   /// A set of properties that are declarative descriptions of settings parameters.
   final List<BaseSetting>? _settings;
 
-  /// A list of converted properties to the Property type
-  ///final List<Setting> _adaptedProperties = [];
-
   final HashMap<String, Setting> _localSettings = HashMap();
 
   final HashMap<String, Setting> _sessionSettings = HashMap();
@@ -105,6 +108,8 @@ class SettiController implements ISettingsController {
 
   final SessionStorage _session = SessionStorage();
 
+  final bool _autoManageStorageMode;
+
   final bool _isDebug;
 
   bool _isSessionOnly = false;
@@ -117,18 +122,17 @@ class SettiController implements ISettingsController {
   }
 
   Future<void> _init() async {
-    // TODO: Додати обробку коли немає налаштувань
     if (_isDebug) {
       await _storage.clear();
     }
 
-    _snapshot = Setting(
-        id: _caseFormat.apply('snapshot'),
-        defaultValue: [],
-        saveMode: SaveMode.local);
-
     if (_settings != null && _settings!.isNotEmpty) {
       assert(_isAllUnique(_settings!), "A non-unique ID was passed");
+
+      _snapshot = Setting(
+          id: _caseFormat.apply('snapshot'),
+          defaultValue: [],
+          saveMode: SaveMode.local);
 
       _separateSettings(_settings!);
 
@@ -137,28 +141,37 @@ class SettiController implements ISettingsController {
       } else {
         await _restoreSnapshot();
       }
-      await _initSettings(_settings!);
-    }
 
-    _isInitialized = true;
+      await _initDeclarativeSettings(_settings!);
+
+      _isInitialized = true;
+    }
   }
 
   /// Restores the snapshot of saved settings from local storage.
   Future<void> _restoreSnapshot() async {
-    // TODO: Зробити явну обробку snapshotData != null
+    if (!_autoManageStorageMode) return;
+
     if (await _storage.contains(_snapshot.id)) {
       List<String>? snapshotData =
           await _storage.getSetting(_snapshot.id, _snapshot.defaultValue);
-      assert(snapshotData != null);
+      if (snapshotData == null) {
+        throw ControllerException(
+            msg: "Snapshot could not be restored from storage.",
+            solutionMsg: "Verify that storage contains a valid snapshot.");
+      }
       _snapshot = _snapshot.copyWith(defaultValue: snapshotData);
     }
   }
 
-  void updateSettings() async {
-    var snapshotData =
-        await _storage.getSetting(_snapshot.id, _snapshot.defaultValue);
-    _snapshot = _snapshot.copyWith(defaultValue: snapshotData);
-    await _initSettings(_settings!);
+  Future<void> updateSettings() async {
+    if (_autoManageStorageMode) {
+      var snapshotData =
+          await _storage.getSetting(_snapshot.id, _snapshot.defaultValue);
+      _snapshot = _snapshot.copyWith(defaultValue: snapshotData);
+    }
+
+    await _initDeclarativeSettings(_settings!);
   }
 
   bool _isAllUnique(List<BaseSetting> settings) {
@@ -175,9 +188,6 @@ class SettiController implements ISettingsController {
 
   void _separateSettings(List<BaseSetting> settings) {
     for (BaseSetting setting in settings) {
-      /* if (!setting.declarative) {
-        _notDeclarativeSettings[setting.id] = _converter.convertTo(setting);
-      }  */
       if (setting.saveMode == SaveMode.local) {
         _localSettings[setting.id] = _converter.convertTo(setting);
       } else {
@@ -186,54 +196,48 @@ class SettiController implements ISettingsController {
     }
   }
 
-  Future<void> _initSettings(List<BaseSetting> settings) async {
-    // TODO: Подумати про обробку і створення списків, так-як це може бути не оптимізовано
+  Future<void> _initDeclarativeSettings(List<BaseSetting> settings) async {
     if (_isSessionOnly) {
-      _setSessionSettings(_sessionSettings.values.toList());
+      _setSessionSettings(_sessionSettings.values);
     } else {
-      await _setLocalSettings(_localSettings.values.toList());
-      _setSessionSettings(_sessionSettings.values.toList());
+      await _setLocalSettings(_localSettings.values);
+      _setSessionSettings(_sessionSettings.values);
 
-      await clearCache();
-      await _makeSettingsSnapshot();
+      if (_autoManageStorageMode) {
+        await clearCache();
+        await _makeSettingsSnapshot();
+      }
     }
   }
 
-  Future<void> _setSessionSettings(List<Setting> sessionSettings) async {
+  Future<void> _setSessionSettings(Iterable<Setting> sessionSettings) async {
+    List<Setting> notDeclarativeSettings = [];
     for (Setting setting in sessionSettings) {
       if (!setting.declarative) {
-        await _restoreSetting(setting);
+        notDeclarativeSettings.add(setting);
       } else {
         _session.setSetting(setting.id, setting.defaultValue);
       }
     }
-  }
-
-  Future<void> _setLocalSettings(List<Setting> localProperties) async {
-    // TODO: перевірка _snapshot.defaultValue.contains(setting.id) не враховує,
-    // TODO: що _snapshot.defaultValue може бути порожнім або null
-    for (Setting setting in localProperties) {
-      if (!setting.declarative) {
-        await _restoreSetting(setting);
-      } else {
-        if (_snapshot.defaultValue.isNotEmpty &&
-            _snapshot.defaultValue.contains(setting.id)) {
-          await _restoreSetting(setting);
-        } else {
-          await _initSetting(setting);
-        }
-      }
+    if (notDeclarativeSettings.isNotEmpty) {
+      await _restoreSettings(notDeclarativeSettings);
     }
   }
 
+  Future<void> _setLocalSettings(Iterable<Setting> localSettings) async {
+    /* for (Setting setting in localProperties) {
+      await _restoreSetting(setting);
+    } */
+    await _restoreSettings(localSettings);
+  }
+
   /// Method to restore data from local storage
-  FutureOr<void> _restoreSetting(Setting setting) async {
+  Future<void> _restoreSetting(Setting setting) async {
     var value = await _storage.getSetting(setting.id, setting.defaultValue);
     if (value == null) {
       if (setting.declarative == false) {
         throw ControllerException(
-            msg:
-                "Setting '${setting.id}' is not declarative and must be stored locally.\n",
+            msg: "Setting '${setting.id}' must be stored locally.\n",
             solutionMsg:
                 "Ensure that '${setting.id}' is stored in local storage.");
       } else {
@@ -241,8 +245,29 @@ class SettiController implements ISettingsController {
       }
     } else {
       _session.setSetting(setting.id, value);
-      //_session.setFromValue(value: value, id: setting.id);
-      //_storage.setSetting(setting.id, setting.defaultValue);
+    }
+  }
+
+  Future<void> _restoreSettings(Iterable<Setting> localSettings) async {
+    List<Setting> settingsToInit = [];
+    for (Setting setting in localSettings) {
+      var value = await _storage.getSetting(setting.id, setting.defaultValue);
+      if (value == null) {
+        if (setting.declarative == false) {
+          throw ControllerException(
+              msg: "Setting '${setting.id}' must be stored locally.\n",
+              solutionMsg:
+                  "Ensure that '${setting.id}' is stored in local storage.");
+        } else {
+          settingsToInit.add(setting);
+        }
+      } else {
+        _session.setSetting(setting.id, value);
+      }
+    }
+
+    if (settingsToInit.isNotEmpty) {
+      await _initLocalSettings(settingsToInit);
     }
   }
 
@@ -256,9 +281,44 @@ class SettiController implements ISettingsController {
     }
   }
 
+  /* Future<void> _initAllSettings(
+      List<Setting> localSettings, List<Setting> sessionSetting) async {
+    if (_isSessionOnly) {
+      for (Setting setting in sessionSetting) {
+        _session.setSetting(setting.id, setting.defaultValue);
+      }
+    } else {
+      var settingsToStore = <String, Object>{};
+      for (Setting setting in sessionSetting) {
+        _session.setSetting(setting.id, setting.defaultValue);
+      }
+      for (Setting setting in localSettings) {
+        settingsToStore[setting.id] = setting.defaultValue;
+      }
+      _storage.setSettings(settingsToStore);
+    }
+  }
+
+  Future<void> _initSessionSettings(List<Setting> sessionSetting) async {
+    for (Setting setting in sessionSetting) {
+      _session.setSetting(setting.id, setting.defaultValue);
+    }
+  } */
+
+  Future<void> _initLocalSettings(List<Setting> localSettings) async {
+    var settingsToStore = <String, Object>{};
+
+    for (Setting setting in localSettings) {
+      settingsToStore[setting.id] = setting.defaultValue;
+    }
+    await _storage.setSettings(settingsToStore);
+    _session.setSettings(settingsToStore);
+  }
+
   /// Creates a snapshot of current local settings to track active keys.
   ///
-  /// The snapshot allows you to clear the local storage
+  /// The snapshot allows you to remove the local storage settings automatically
+  /// if they are not in declarative configuration.
   Future<void> _makeSettingsSnapshot() async {
     var keysList = _localSettings.keys.toList();
     var snapshotProperty = _snapshot.copyWith(defaultValue: keysList);
@@ -271,8 +331,6 @@ class SettiController implements ISettingsController {
   /// A method that helps to remove settings that are not in the
   /// current list of settings and clear unused keys dump
   Future<void> clearCache() async {
-    // TODO: У clearCache використовується Future.forEach, що може бути повільним
-    // TODO: для великих списків. Крім того, видалення виконується асинхронно без очікування завершення.
     if (await _storage.contains(_snapshot.id)) {
       // if the snapshot already exists, we get it
       List<String>? snapshot =
@@ -282,25 +340,35 @@ class SettiController implements ISettingsController {
         throw Exception('Snapshot is null');
       }
 
-      await Future.forEach(snapshot, (key) {
-        // if the key is in the list of current keys,
-        // then there is no need to delete in settings, it is still actuality
+      var keysToRemove = <String>{};
+      for (String key in snapshot) {
         if (!_localSettings.containsKey(key)) {
-          Future.value(_storage.removeSetting(key));
+          keysToRemove.add(key);
+        }
+      }
+
+      if (keysToRemove.isNotEmpty) {
+        await _storage.removeSettings(keysToRemove);
+        for (String key in keysToRemove) {
           _storage.removeCacheFor(key);
           _localSettings.remove(key);
         }
-      });
+        //await _makeSettingsSnapshot();
+      }
     }
   }
 
   Future<void> _applySetting<T>(BaseSetting<T> setting,
       {bool sessionOnly = false}) async {
-    var adaptedSetting = _converter.convertTo(setting);
-    _session.setSetting(adaptedSetting.id, adaptedSetting.defaultValue);
+    if (setting.defaultValue !=
+        _session.getSetting(setting.id, setting.defaultValue)) {
+      var adaptedSetting = _converter.convertTo(setting);
+      _session.setSetting(adaptedSetting.id, adaptedSetting.defaultValue);
 
-    if (!sessionOnly && setting.saveMode == SaveMode.local) {
-      await _storage.setSetting(adaptedSetting.id, adaptedSetting.defaultValue);
+      if (!sessionOnly && setting.saveMode == SaveMode.local) {
+        await _storage.setSetting(
+            adaptedSetting.id, adaptedSetting.defaultValue);
+      }
     }
   }
 
@@ -317,16 +385,21 @@ class SettiController implements ISettingsController {
     await _applySetting(setting, sessionOnly: sessionOnly);
   }
 
+  /// Synchronizes session settings with local storage for settings with [SaveMode.local].
+  ///
+  /// Uses batch processing to optimize performance for supported storage backends.
   Future<void> match() async {
-    // TODO: Додати пакетну обробку
-    if (_settings != null) {
+    if (_settings != null && _settings!.isNotEmpty) {
+      Map<String, Object> batchSettings = {}; // think about usage dynamic
       for (Setting setting in _localSettings.values) {
         if (setting.saveMode == SaveMode.local &&
             _session.contains(setting.id)) {
-          var needToStoreValue =
+          batchSettings[setting.id] =
               _session.getSetting(setting.id, setting.defaultValue);
-          await _storage.setSetting(setting.id, needToStoreValue!);
         }
+      }
+      if (batchSettings.isNotEmpty) {
+        await _storage.setSettings(batchSettings);
       }
     }
   }
@@ -344,7 +417,6 @@ class SettiController implements ISettingsController {
     } else {
       throw SettingNotFoundException(
           msg: "Setting with id ${setting.id} not found.");
-      //return setting.defaultValue;
     }
   }
 
@@ -367,7 +439,7 @@ class SettiController implements ISettingsController {
   }
 
   @override
-  FutureOr<bool> remove<T>(BaseSetting<T> setting) async {
+  Future<bool> remove<T>(BaseSetting<T> setting) async {
     if (_isSessionOnly) {
       _session.removeSetting(setting.id);
     } else {
@@ -377,7 +449,9 @@ class SettiController implements ISettingsController {
       _storage.removeCacheFor(setting.id);
       _localSettings.remove(setting.id);
 
-      await _makeSettingsSnapshot();
+      if (_autoManageStorageMode) {
+        await _makeSettingsSnapshot();
+      }
     }
 
     return true;

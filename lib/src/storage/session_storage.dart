@@ -29,6 +29,7 @@
 Сесійний кеш — тимчасове зберігання даних, які не потребують збереження після завершення роботи програми
 (наприклад, дані, завантажені з серверу для поточної сесії, але не потрібні після перезапуску). */
 
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
@@ -66,5 +67,19 @@ class SessionStorage implements ISettingsWorker {
   bool setSetting(String id, Object value) {
     _settings[id] = value;
     return true;
+  }
+
+  @override
+  FutureOr<void> removeSettings(Set<String> keys) {
+    for (var key in keys) {
+      _settings.remove(key);
+    }
+  }
+
+  @override
+  FutureOr<void> setSettings(Map<String, Object> settings) {
+    for (var entry in settings.entries) {
+      _settings[entry.key] = entry.value;
+    }
   }
 }

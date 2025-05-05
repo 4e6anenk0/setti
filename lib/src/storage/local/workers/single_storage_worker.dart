@@ -40,4 +40,14 @@ class SingleSettingsStorage implements ISettingsWorker {
   FutureOr<bool> setSetting(String id, Object value) async {
     return await _storage.setSetting(id, value);
   }
+
+  @override
+  FutureOr<void> removeSettings(Set<String> keys) async {
+    await _storage.removeSettings(keys);
+  }
+
+  @override
+  FutureOr<void> setSettings(Map<String, Object> settings) async {
+    await _storage.setSettings(settings);
+  }
 }

@@ -163,6 +163,23 @@ Supported values are: bool, int, double, String, List<String>""",
   }
 
   @override
+  Future<void> setSettings(Map<String, dynamic> settings) async {
+    for (var entry in settings.entries) {
+      _setObject(
+          sectionName: _sectionName, option: entry.key, value: entry.value);
+    }
+    await _saveConfig();
+  }
+
+  @override
+  Future<void> removeSettings(Set<String> keys) async {
+    for (var key in keys) {
+      _config.removeOption(_sectionName, key);
+    }
+    await _saveConfig();
+  }
+
+  @override
   String get id => runtimeType.toString();
 
   @override

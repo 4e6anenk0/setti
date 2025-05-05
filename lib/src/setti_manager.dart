@@ -2,12 +2,6 @@ import 'dart:async';
 
 import '../setti.dart';
 
-enum ConfigPolicy {
-  returnNull,
-  throwException,
-  returnDefault,
-}
-
 abstract class ConfigManager {
   final Map<Type, BaseSetti> _initializedConfigs = {};
 
@@ -40,6 +34,7 @@ Config of type `$configType` was requested but not found.
 Possible reasons:
 - The config was never initialized.
 - The platform-specific setup may be incorrect.
+- Config not exist.
 
 Not initialized configs:
 ${_notInitializedConfigs.join(', ')}

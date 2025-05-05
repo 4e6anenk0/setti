@@ -71,4 +71,18 @@ class MultiSettingsStorage implements ISettingsWorker {
 
     return true;
   }
+
+  @override
+  FutureOr<void> removeSettings(Set<String> keys) async {
+    for (ISettingsStorage storage in _storages) {
+      await storage.removeSettings(keys);
+    }
+  }
+
+  @override
+  FutureOr<void> setSettings(Map<String, Object> settings) async {
+    for (ISettingsStorage storage in _storages) {
+      await storage.setSettings(settings);
+    }
+  }
 }

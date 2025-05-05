@@ -99,4 +99,26 @@ class StorageOverlay implements ISettingsWorker {
   FutureOr<bool> setSetting(String id, Object value) async {
     return await _storageWorker.setSetting(_keysDump[id] ?? _name(id), value);
   }
+
+  @override
+  FutureOr<void> removeSettings(Set<String> keys) async {
+    if (keys.isEmpty) return;
+    var prefixedKeys = <String>{};
+    for (var key in keys) {
+      var prefixedKey = _keysDump[key] ??= _name(key);
+      prefixedKeys.add(prefixedKey);
+    }
+    await _storageWorker.removeSettings(prefixedKeys);
+  }
+
+  @override
+  FutureOr<void> setSettings(Map<String, Object> settings) async {
+    if (settings.isEmpty) return;
+    var prefixedSettings = <String, Object>{};
+    for (var entry in settings.entries) {
+      var key = _keysDump[entry.key] ??= _name(entry.key);
+      prefixedSettings[key] = entry.value;
+    }
+    await _storageWorker.setSettings(prefixedSettings);
+  }
 }
