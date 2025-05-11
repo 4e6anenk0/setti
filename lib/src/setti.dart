@@ -81,7 +81,6 @@ abstract class BaseSetti
 
     final currentPlatform = getCurrentPlatform();
     List<BaseSetting> combinedSettings = List.from(settings);
-
     if (layers.isNotEmpty) {
       final applicableLayers = layers
           .where((layer) => layer.platforms.contains(currentPlatform))

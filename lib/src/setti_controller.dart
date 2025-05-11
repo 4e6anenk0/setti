@@ -337,7 +337,7 @@ class SettiController implements ISettingsController {
           await _storage.getSetting(_snapshot.id, _snapshot.defaultValue);
 
       if (snapshot == null) {
-        throw Exception('Snapshot is null');
+        throw ControllerException(msg: 'Snapshot is null');
       }
 
       var keysToRemove = <String>{};
