@@ -53,7 +53,7 @@ If the package is already installed, make sure you have mixed it with your custo
     if (neededStorages.length == 1) {
       return SingleSettingsStorage(neededStorages.first);
     } else if (neededStorages.isEmpty) {
-      return SessionStorage();
+      return SessionStorage(); // WARNING: potential problem with this
       /* throw Exception([
         'There are no repositories matching the given types: ${storageTypes.toString()}.'
       ]); */

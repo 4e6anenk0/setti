@@ -25,7 +25,7 @@ abstract class BaseSetti
   List<BaseSetting> get settings;
 
   /// Defines the layers for initialization
-  List<Layer> get layers => [];
+  List<LayerDesc> get layers => [];
 
   SettiController get controller => _controller;
 
@@ -86,7 +86,7 @@ abstract class BaseSetti
           layers.where((desc) => desc.platforms.contains(currentPlatform));
 
       for (final desc in applicableFactories) {
-        final layer = desc.factory(); // ленивое создание
+        final layer = desc.factory();
         _activeLayers.add(layer);
         _appliedLayers
             .putIfAbsent('InitialLayer', () => [])
@@ -94,19 +94,6 @@ abstract class BaseSetti
         combinedSettings = _mergeSettings(combinedSettings, layer.settings);
       }
     }
-    /* if (layers.isNotEmpty) {
-      final applicableLayers = layers
-          .where((layer) => layer.platforms.contains(currentPlatform))
-          .toList();
-
-      for (final layer in applicableLayers) {
-        _activeLayers.add(layer);
-        _appliedLayers
-            .putIfAbsent('InitialLayer', () => [])
-            .add("${layer.name}-${layer.runtimeType}");
-        combinedSettings = _mergeSettings(combinedSettings, layer.settings);
-      }
-    } */
 
     if (_activeLayers.isEmpty && !isCorrectPlatform()) {
       return;
@@ -117,9 +104,6 @@ abstract class BaseSetti
 
   List<BaseSetting> _mergeSettings(
       List<BaseSetting> baseSettings, List<BaseSetting> layerSettings) {
-    /* final settingsMap = {
-      for (var setting in baseSettings) setting.id: setting,
-    }; */
     var settingsMap =
         HashMap.fromEntries(baseSettings.map((e) => MapEntry(e.id, e)));
 
@@ -129,31 +113,6 @@ abstract class BaseSetti
 
     return settingsMap.values.toList();
   }
-  /* Future<void> init({Set<SettiLayer>? layers}) async {
-    if (_isInitialized) return;
-
-    if (layers == null) {
-      if (!isCorrectPlatform()) return;
-      await _init(settings);
-    } else {
-
-      final currentPlatform = getCurrentPlatform();
-
-      SettiLayer? actualLayer = layers
-          .where((layer) => layer.platforms.contains(currentPlatform))
-          .toList()
-          .lastOrNull;
-
-      if (actualLayer != null) {
-        _appliedLayers['InitialLayer'] =
-            "${actualLayer.name}, ${actualLayer.runtimeType}";
-        await _init(actualLayer.settings);
-      } else {
-        if (!isCorrectPlatform()) return;
-        await _init(settings);
-      }
-    }
-  } */
 
   Future<void> _init(List<BaseSetting> settings) async {
     _storage = SettingsStorage.getInstance();

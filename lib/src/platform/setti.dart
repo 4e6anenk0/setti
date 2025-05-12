@@ -1,9 +1,4 @@
-import 'dart:async';
-import 'dart:collection';
-
 import 'package:setti/src/setti_configurations.dart';
-import 'package:setti/src/setting_types/base/setting.dart';
-import 'package:setti/src/settings_controller_interface.dart';
 
 import '../setti.dart';
 

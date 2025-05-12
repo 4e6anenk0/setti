@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:setti/src/setti.dart';
-import 'package:setti/src/storage/interfaces/storage_worker_interface.dart';
 
 import '../../interfaces/settings_storage_interface.dart';
 

@@ -27,7 +27,6 @@ class MultiSettingsStorage implements ISettingsWorker {
     for (ISettingsStorage storage in _storages) {
       await storage.clear();
     }
-    //await Future.wait(_storages.map((storage) => storage.clear()));
   }
 
   @override
@@ -56,15 +55,11 @@ class MultiSettingsStorage implements ISettingsWorker {
     for (ISettingsStorage storage in _storages) {
       await storage.removeSetting(id);
     }
-    //await Future.wait(_storages.map((storage) => storage.removeSetting(id)));
     return true;
   }
 
   @override
   FutureOr<bool> setSetting(String id, Object value) async {
-    /* await Future.wait(
-        _storages.map((storage) => storage.setSetting(id, value))); */
-
     for (ISettingsStorage storage in _storages) {
       await storage.setSetting(id, value);
     }

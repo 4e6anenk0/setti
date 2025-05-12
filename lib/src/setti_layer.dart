@@ -12,9 +12,9 @@ abstract class SettiLayer {
   String get name => 'UnnamedLayer';
 }
 
-class Layer {
+class LayerDesc {
   final List<SettiPlatform> platforms;
   final LayerFactory factory;
 
-  Layer({required this.platforms, required this.factory});
+  LayerDesc({required this.platforms, required this.factory});
 }

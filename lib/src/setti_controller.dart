@@ -82,9 +82,6 @@ class SettiController implements ISettingsController {
   /// A converter is required to convert properties to the Property type
   final ISettingConverter _converter;
 
-  /// List of all repositories to save settings.
-  //final List<IStorageWorker> _storages;
-
   /// A class that handles a single repository or multiple repositories.
   final StorageOverlay _storage;
 
@@ -98,8 +95,6 @@ class SettiController implements ISettingsController {
   final HashMap<String, Setting> _localSettings = HashMap();
 
   final HashMap<String, Setting> _sessionSettings = HashMap();
-
-  //final HashMap<String, Setting> _notDeclarativeSettings = HashMap();
 
   /// snapshot is used for initialization to analyze fields already saved
   /// in local storage and restore it, otherwise save new unsaved settings and
@@ -225,9 +220,6 @@ class SettiController implements ISettingsController {
   }
 
   Future<void> _setLocalSettings(Iterable<Setting> localSettings) async {
-    /* for (Setting setting in localProperties) {
-      await _restoreSetting(setting);
-    } */
     await _restoreSettings(localSettings);
   }
 
@@ -281,30 +273,6 @@ class SettiController implements ISettingsController {
     }
   }
 
-  /* Future<void> _initAllSettings(
-      List<Setting> localSettings, List<Setting> sessionSetting) async {
-    if (_isSessionOnly) {
-      for (Setting setting in sessionSetting) {
-        _session.setSetting(setting.id, setting.defaultValue);
-      }
-    } else {
-      var settingsToStore = <String, Object>{};
-      for (Setting setting in sessionSetting) {
-        _session.setSetting(setting.id, setting.defaultValue);
-      }
-      for (Setting setting in localSettings) {
-        settingsToStore[setting.id] = setting.defaultValue;
-      }
-      _storage.setSettings(settingsToStore);
-    }
-  }
-
-  Future<void> _initSessionSettings(List<Setting> sessionSetting) async {
-    for (Setting setting in sessionSetting) {
-      _session.setSetting(setting.id, setting.defaultValue);
-    }
-  } */
-
   Future<void> _initLocalSettings(List<Setting> localSettings) async {
     var settingsToStore = <String, Object>{};
 
@@ -353,7 +321,6 @@ class SettiController implements ISettingsController {
           _storage.removeCacheFor(key);
           _localSettings.remove(key);
         }
-        //await _makeSettingsSnapshot();
       }
     }
   }
