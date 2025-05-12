@@ -1,5 +1,7 @@
 import '../setti.dart';
 
+typedef LayerFactory = SettiLayer Function();
+
 abstract class SettiLayer {
   const SettiLayer();
 
@@ -8,4 +10,11 @@ abstract class SettiLayer {
   List<SettiPlatform> get platforms;
 
   String get name => 'UnnamedLayer';
+}
+
+class Layer {
+  final List<SettiPlatform> platforms;
+  final LayerFactory factory;
+
+  Layer({required this.platforms, required this.factory});
 }

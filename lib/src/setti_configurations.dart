@@ -16,18 +16,18 @@ enum SettiPlatform {
 }
 
 abstract class SettiPlatforms {
-  static final List<SettiPlatform> desktop = const [
+  static const List<SettiPlatform> desktop = [
     SettiPlatform.linux,
     SettiPlatform.windows,
     SettiPlatform.macos
   ];
 
-  static final List<SettiPlatform> mobile = const [
+  static const List<SettiPlatform> mobile = [
     SettiPlatform.ios,
     SettiPlatform.android
   ];
 
-  static final List<SettiPlatform> io = const [
+  static const List<SettiPlatform> io = [
     SettiPlatform.android,
     SettiPlatform.ios,
     SettiPlatform.fuchsia,
@@ -36,7 +36,7 @@ abstract class SettiPlatforms {
     SettiPlatform.windows,
   ];
 
-  static final List<SettiPlatform> general = const [
+  static const List<SettiPlatform> general = [
     SettiPlatform.android,
     SettiPlatform.ios,
     SettiPlatform.fuchsia,
@@ -48,12 +48,12 @@ abstract class SettiPlatforms {
 
   static final List<SettiPlatform> web = const [SettiPlatform.web];
 
-  static final List<SettiPlatform> ios = const [SettiPlatform.ios];
-  static final List<SettiPlatform> android = const [SettiPlatform.android];
-  static final List<SettiPlatform> fuchsia = const [SettiPlatform.fuchsia];
-  static final List<SettiPlatform> windows = const [SettiPlatform.windows];
-  static final List<SettiPlatform> linux = const [SettiPlatform.linux];
-  static final List<SettiPlatform> macos = const [SettiPlatform.macos];
+  static const List<SettiPlatform> ios = [SettiPlatform.ios];
+  static const List<SettiPlatform> android = [SettiPlatform.android];
+  static const List<SettiPlatform> fuchsia = [SettiPlatform.fuchsia];
+  static const List<SettiPlatform> windows = [SettiPlatform.windows];
+  static const List<SettiPlatform> linux = [SettiPlatform.linux];
+  static const List<SettiPlatform> macos = [SettiPlatform.macos];
 }
 
 /// Використовується для визначення роздільника в іменах ідентифікаторів налаштувань.

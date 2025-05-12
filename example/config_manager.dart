@@ -52,10 +52,10 @@ class AppConfig extends Setti with Ini {
   List<BaseSetting> get settings => [counter, pathToProfiler, generalSetting];
 
   @override
-  List<SettiLayer> get layers => [
-        MacConfig(),
-        LinuxConfig(),
-        WindowsConfig(),
+  List<Layer> get layers => [
+        Layer(platforms: SettiPlatforms.linux, factory: () => LinuxConfig()),
+        Layer(platforms: SettiPlatforms.macos, factory: () => MacConfig()),
+        Layer(platforms: SettiPlatforms.windows, factory: () => WindowsConfig())
       ];
 
   @override

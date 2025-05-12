@@ -25,7 +25,7 @@ abstract class BaseSetti
   List<BaseSetting> get settings;
 
   /// Defines the layers for initialization
-  List<SettiLayer> get layers => [];
+  List<Layer> get layers => [];
 
   SettiController get controller => _controller;
 
@@ -82,6 +82,19 @@ abstract class BaseSetti
     final currentPlatform = getCurrentPlatform();
     List<BaseSetting> combinedSettings = List.from(settings);
     if (layers.isNotEmpty) {
+      final applicableFactories =
+          layers.where((desc) => desc.platforms.contains(currentPlatform));
+
+      for (final desc in applicableFactories) {
+        final layer = desc.factory(); // ленивое создание
+        _activeLayers.add(layer);
+        _appliedLayers
+            .putIfAbsent('InitialLayer', () => [])
+            .add("${layer.name}-${layer.runtimeType}");
+        combinedSettings = _mergeSettings(combinedSettings, layer.settings);
+      }
+    }
+    /* if (layers.isNotEmpty) {
       final applicableLayers = layers
           .where((layer) => layer.platforms.contains(currentPlatform))
           .toList();
@@ -93,7 +106,7 @@ abstract class BaseSetti
             .add("${layer.name}-${layer.runtimeType}");
         combinedSettings = _mergeSettings(combinedSettings, layer.settings);
       }
-    }
+    } */
 
     if (_activeLayers.isEmpty && !isCorrectPlatform()) {
       return;
