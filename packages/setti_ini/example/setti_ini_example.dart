@@ -18,7 +18,7 @@ class AppConfig extends Setti with Ini {
 
   @override
   SettiConfig get config =>
-      iniConfig.copyWith(useModelPrefix: false, useSettiPrefix: true);
+      storageConfig.copyWith(useModelPrefix: false, useSettiPrefix: true);
 
   static final counter = Setting(
     id: 'COUNTER',

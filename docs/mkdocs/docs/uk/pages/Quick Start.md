@@ -14,7 +14,7 @@ dart pub get setti
 flutter pub get flutter-setti
 ```
 
-## How to start use Setti
+## Як почати використовувати Setti
 
 ```dart
 import 'package:setti/setti.dart';
@@ -57,10 +57,3 @@ void main() async {
   await config.remove(AppConfig.pathToProfiler);
 }
 ```
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.

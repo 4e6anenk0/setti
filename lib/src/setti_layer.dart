@@ -7,8 +7,6 @@ abstract class SettiLayer {
 
   List<BaseSetting> get settings;
 
-  List<SettiPlatform> get platforms;
-
   String get name => 'UnnamedLayer';
 }
 

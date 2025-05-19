@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:setti/setti.dart';
+import 'package:setti_ini/setti_ini.dart';
 
 class AppConfig extends Setti with Ini {
   @override

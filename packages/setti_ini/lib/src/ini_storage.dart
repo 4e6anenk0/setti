@@ -4,7 +4,8 @@ import 'package:ini/ini.dart';
 
 import 'package:setti/setti.dart';
 
-class IniStorage implements ISettingsStorage {
+//@internal
+class IniStorage extends ISettingsStorage {
   IniStorage(String path, String sectionName, String fileName)
     : _path = path,
       _sectionName = sectionName,
@@ -15,9 +16,11 @@ class IniStorage implements ISettingsStorage {
   final String _fileName;
   late final Config _config;
 
+  late final File file;
+
   Future<void> _loadConfig() async {
     try {
-      final lines = await File("$_path/$_fileName.ini").readAsLines();
+      final lines = await file.readAsLines();
       _config = Config.fromStrings(lines);
     } catch (e) {
       rethrow;
@@ -25,10 +28,10 @@ class IniStorage implements ISettingsStorage {
   }
 
   Future<void> _createPath() async {
-    var path = File("$_path/$_fileName.ini");
+    file = File("$_path/$_fileName.ini");
 
-    if (!await path.exists()) {
-      await path.create(recursive: true);
+    if (!await file.exists()) {
+      await file.create(recursive: true);
     }
   }
 
@@ -42,7 +45,12 @@ class IniStorage implements ISettingsStorage {
     } else if (value is List<String>) {
       _config.set(sectionName, option, jsonEncode(value));
     } else {
-      throw LocalStorageException("Unsupported type: ${value.runtimeType}");
+      throw LocalStorageException(
+        msg: "Unsupported type: ${value.runtimeType}",
+        solutionMsg:
+            """Check that you are not trying to store an unsupported value in the local storage.
+Supported values are: bool, int, double, String, List<String>""",
+      );
     }
   }
 
@@ -64,8 +72,7 @@ class IniStorage implements ISettingsStorage {
   }
 
   Future<void> _saveConfig() async {
-    //print('_saveConfig()');
-    final file = File("$_path/config.ini");
+    //final file = File("$_path/config.ini");
 
     RandomAccessFile? raf;
     try {
@@ -78,9 +85,7 @@ class IniStorage implements ISettingsStorage {
 
   @override
   Future<void> clear() async {
-    _config
-        .options(_sectionName)
-        ?.map((option) => _config.removeOption(_sectionName, option));
+    _config.removeSection(_sectionName);
 
     await _saveConfig();
   }
@@ -113,7 +118,7 @@ class IniStorage implements ISettingsStorage {
   }
 
   @override
-  bool isContains(String id) {
+  bool contains(String id) {
     return _config.hasOption(_sectionName, id);
   }
 
@@ -131,6 +136,26 @@ class IniStorage implements ISettingsStorage {
     _setObject(sectionName: _sectionName, option: id, value: value);
     await _saveConfig();
     return true;
+  }
+
+  @override
+  Future<void> setSettings(Map<String, dynamic> settings) async {
+    for (var entry in settings.entries) {
+      _setObject(
+        sectionName: _sectionName,
+        option: entry.key,
+        value: entry.value,
+      );
+    }
+    await _saveConfig();
+  }
+
+  @override
+  Future<void> removeSettings(Set<String> keys) async {
+    for (var key in keys) {
+      _config.removeOption(_sectionName, key);
+    }
+    await _saveConfig();
   }
 
   @override

@@ -4,39 +4,44 @@ import 'package:setti/setti.dart';
 import 'package:setti_ini/setti_ini.dart';
 
 class LinuxConfig extends SettiLayer {
-  LinuxConfig();
+  final counter = AppConfig.counter.copyWith(defaultValue: 3);
+  final profiler =
+      AppConfig.pathToProfiler.copyWith(defaultValue: '~/.src/profiler.txt');
 
   @override
   String get name => 'LinuxLayer';
 
   @override
-  List<BaseSetting> get settings => [counter, pathToProfiler];
-
-  final counter = AppConfig.counter.copyWith(defaultValue: 3);
-  final pathToProfiler =
-      AppConfig.pathToProfiler.copyWith(defaultValue: '~/.src/profiler.txt');
+  List<BaseSetting> get settings => [
+        counter,
+        profiler,
+      ];
 }
 
 class MacConfig extends SettiLayer {
-  MacConfig();
+  final counter = AppConfig.counter.copyWith(defaultValue: 100);
+  final profiler = AppConfig.pathToProfiler.copyWith(defaultValue: '~/');
 
   @override
   String get name => 'MacLayer';
 
   @override
-  List<BaseSetting> get settings => [counter, pathToProfiler];
-
-  final counter = AppConfig.counter.copyWith(defaultValue: 100);
-  final pathToProfiler = AppConfig.pathToProfiler.copyWith(defaultValue: '~/');
+  List<BaseSetting> get settings => [
+        counter,
+        profiler,
+      ];
 }
 
 class WindowsConfig extends SettiLayer {
-  @override
-  List<BaseSetting> get settings => [counter, pathToProfiler];
-
   final counter = AppConfig.counter.copyWith(defaultValue: 2);
-  final pathToProfiler =
+  final profiler =
       AppConfig.pathToProfiler.copyWith(defaultValue: 'C:\\.src\\profiler.txt');
+
+  @override
+  List<BaseSetting> get settings => [
+        counter,
+        profiler,
+      ];
 }
 
 class AppConfig extends Setti with Ini {
@@ -46,10 +51,17 @@ class AppConfig extends Setti with Ini {
   @override
   List<LayerDesc> get layers => [
         LayerDesc(
-            platforms: SettiPlatforms.linux, factory: () => LinuxConfig()),
-        LayerDesc(platforms: SettiPlatforms.macos, factory: () => MacConfig()),
+          platforms: SettiPlatforms.linux,
+          factory: () => LinuxConfig(),
+        ),
         LayerDesc(
-            platforms: SettiPlatforms.windows, factory: () => WindowsConfig())
+          platforms: SettiPlatforms.macos,
+          factory: () => MacConfig(),
+        ),
+        LayerDesc(
+          platforms: SettiPlatforms.windows,
+          factory: () => WindowsConfig(),
+        )
       ];
 
   @override

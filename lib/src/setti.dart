@@ -90,7 +90,7 @@ abstract class BaseSetti
         _activeLayers.add(layer);
         _appliedLayers
             .putIfAbsent('InitialLayer', () => [])
-            .add("${layer.name}-${layer.runtimeType}");
+            .add("${layer.name}:${layer.runtimeType}");
         combinedSettings = _mergeSettings(combinedSettings, layer.settings);
       }
     }
@@ -177,9 +177,8 @@ abstract class BaseSetti
   }
 
   Future<void> mut<T>(Setting<T> setting, T Function(T value) setter) async {
-    _controller.update(
+    await _controller.update(
       setting.copyWith(defaultValue: setter(_controller.get(setting))),
-      sessionOnly: false,
       onlyExisting: true,
     );
   }
@@ -212,40 +211,25 @@ abstract class BaseSetti
 
   @override
   void applyLayer(SettiLayer layer) {
-    for (BaseSetting setting in layer.settings) {
-      _controller.update(setting, sessionOnly: true);
-      _appliedLayers
-          .putIfAbsent('SessionLayer', () => [])
-          .add("${layer.name}-${layer.runtimeType}");
-    }
-  }
-
-  /* @override
-  void applyLayer(SettiLayer layer) {
-    if (_activeLayers.contains(layer)) return; // Избегаем дублирования
+    if (_activeLayers.contains(layer) && layer.settings.isEmpty) return;
 
     _activeLayers.add(layer);
     _appliedLayers
         .putIfAbsent('SessionLayer', () => [])
-        .add("${layer.name}, ${layer.runtimeType}");
+        .add("${layer.name}:${layer.runtimeType}");
 
-    // Обновляем настройки контроллера
-    final combinedSettings = _mergeSettings(
-      _controller.settings, // Текущие настройки контроллера
-      layer.settings,
-    );
-    // TODO: Добавить пакетную обработку
-    // Обновляем контроллер с новыми настройками
-    _controller.updateSettings(combinedSettings, sessionOnly: true);
-  } */
+    for (BaseSetting setting in layer.settings) {
+      _controller.update(setting, onlyExisting: true, sessionOnly: true);
+    }
+  }
 
   @override
-  FutureOr<bool> remove<T>(BaseSetting<T> setting) async {
+  Future<bool> remove<T>(BaseSetting<T> setting) async {
     return await _controller.remove(setting);
   }
 
   @override
-  FutureOr<bool> clear() async {
+  Future<bool> clear() async {
     return await _controller.clear();
   }
 }

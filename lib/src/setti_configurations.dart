@@ -8,8 +8,7 @@ enum SettiPlatform {
   windows,
   fuchsia,
   web,
-  other,
-  ;
+  other;
 
   @override
   String toString() => name;

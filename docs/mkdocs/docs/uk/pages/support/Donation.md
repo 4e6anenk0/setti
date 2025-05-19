@@ -1,0 +1,3 @@
+- [Patreon](URL_PATREON)
+- [PayPal](URL_PAYPAL)
+- [Інші платформи](URL_ІНШІ_ПЛАТФОРМИ)

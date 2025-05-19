@@ -325,32 +325,46 @@ class SettiController implements ISettingsController {
     }
   }
 
-  Future<void> _applySetting<T>(BaseSetting<T> setting,
-      {bool sessionOnly = false}) async {
+  FutureOr<void> _applySetting<T>(BaseSetting<T> setting,
+      {bool sessionOnly = false}) {
     if (setting.defaultValue !=
         _session.getSetting(setting.id, setting.defaultValue)) {
       var adaptedSetting = _converter.convertTo(setting);
       _session.setSetting(adaptedSetting.id, adaptedSetting.defaultValue);
 
       if (!sessionOnly && setting.saveMode == SaveMode.local) {
-        await _storage.setSetting(
+        return _storage.setSetting(
             adaptedSetting.id, adaptedSetting.defaultValue);
       }
     }
+
+    return null;
   }
 
   @override
-  Future<void> update<T>(
+  FutureOr<void> update<T>(
     BaseSetting<T> setting, {
     bool onlyExisting = false,
     bool sessionOnly = false,
-  }) async {
+  }) {
     if (onlyExisting && !_session.contains(setting.id)) {
       throw SettingNotFoundException(
           msg: "Setting with id ${setting.id} not found in session.");
     }
-    await _applySetting(setting, sessionOnly: sessionOnly);
+    return _applySetting(setting, sessionOnly: sessionOnly);
   }
+
+  /*  /// Синхронно обновляет настройку только в сессии.
+  void updateSync<T>(
+    BaseSetting<T> setting, {
+    bool onlyExisting = false,
+  }) {
+    if (onlyExisting && !_session.contains(setting.id)) {
+      throw SettingNotFoundException(
+          msg: "Setting with id ${setting.id} not found in session.");
+    }
+    _applySetting(setting, sessionOnly: true);
+  } */
 
   /// Synchronizes session settings with local storage for settings with [SaveMode.local].
   ///

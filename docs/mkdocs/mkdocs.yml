@@ -1,15 +1,13 @@
 site_name: Documentation
 site_author: Serhii Chebanenko
-#repo_url:
-#repo_name:
+repo_url: https://github.com/4e6anenk0/setti
+repo_name: setti
 
 theme:
   name: material
   logo: assets/setti-white-logo.svg
   favicon: assets/setti-fav-2.png
   language: en
-
-  copyright: Copyright &copy; 2025 Serhii Chebanenko
 
   #font:
   #  text: Merriweather Sans
@@ -45,8 +43,16 @@ theme:
         name: Switch to light mode
 
   features:
+    - navigation.tracking
     - navigation.footer # enable the navigation footer
     - content.code.copy
+    #- navigation.expand
+    - navigation.path
+    - navigation.top
+    #- toc.integrate
+    - navigation.tabs
+    #- navigation.tabs.sticky
+    #- navigation.sections
 
 extra:
   social: # add social link to footer
@@ -79,6 +85,9 @@ markdown_extensions:
   # added admonitions
   - admonition
   - pymdownx.details
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
 
 nav:
   - Overview: index.md
@@ -101,4 +110,21 @@ plugins:
           nav:
             - Огляд: index.md
             - Швидкий старт: pages/Quick Start.md
+            - Документація:
+                - Основи налаштувань:
+                    - Вступ: pages/Settings.md
+                    - BaseSetting: pages/settings/BaseSetting.md
+                    - Setting: pages/settings/Setting.md
+                    - EnumSetting: pages/settings/EnumSetting.md
+                - Менеджер конфігурацій: pages/Manager.md
+                - Шари: pages/Layers.md
+                - Префікси: pages/Prefixes.md
+            - Внески:
+                - Внески: pages/support/Support.md
+                - Як повідомити про проблему?: pages/support/Bug.md
+                - Як поставити запитання?: pages/support/Question.md
+                - Як надати пропозицію?: pages/support/Idea.md
+                - Як внести зміни до коду?: pages/support/PR.md
+                - Як зробити переклад документації?: pages/support/Translate Docs.md
+                - Як підтримати проєкт фінансово?: pages/support/Donation.md
 
