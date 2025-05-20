@@ -104,11 +104,16 @@ abstract class BaseSetti
 
   List<BaseSetting> _mergeSettings(
       List<BaseSetting> baseSettings, List<BaseSetting> layerSettings) {
-    var settingsMap =
-        HashMap.fromEntries(baseSettings.map((e) => MapEntry(e.id, e)));
+    var settingsMap = HashMap<String, BaseSetting<dynamic>>();
 
     for (final layerSetting in layerSettings) {
       settingsMap[layerSetting.id] = layerSetting;
+    }
+
+    for (final baseSetting in baseSettings) {
+      if (settingsMap[baseSetting.id] == null) {
+        settingsMap[baseSetting.id] = baseSetting;
+      }
     }
 
     return settingsMap.values.toList();

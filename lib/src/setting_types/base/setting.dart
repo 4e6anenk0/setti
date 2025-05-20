@@ -6,6 +6,7 @@ abstract class BaseSetting<T> {
     required this.defaultValue,
     this.saveMode = SaveMode.session,
     this.declarative = true,
+    this.validator,
   });
 
   /// Defines the type of setting.
@@ -23,6 +24,15 @@ abstract class BaseSetting<T> {
   /// Determines whether the setting values are defined declaratively in code (`true`)
   /// or should be loaded from an external source such as a file, api (`false`).
   final bool declarative;
+
+  final bool Function(T)? validator;
+
+  bool validate(T value) {
+    if (validator != null) {
+      return validator!(value);
+    }
+    return true;
+  }
 
   @override
   bool operator ==(Object other) =>

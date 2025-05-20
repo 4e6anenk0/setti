@@ -72,3 +72,12 @@ class ConfigManagerException extends SettiException {
     super.stackTrace,
   });
 }
+
+class ValidationException extends SettiException {
+  ValidationException({
+    required super.msg,
+    super.label = "Validation Exception",
+    super.solutionMsg,
+    super.stackTrace,
+  });
+}
