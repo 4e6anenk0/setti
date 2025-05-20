@@ -70,14 +70,14 @@ class SessionStorage implements ISettingsWorker {
   }
 
   @override
-  FutureOr<void> removeSettings(Set<String> keys) {
+  void removeSettings(Set<String> keys) {
     for (var key in keys) {
       _settings.remove(key);
     }
   }
 
   @override
-  FutureOr<void> setSettings(Map<String, Object> settings) {
+  void setSettings(Map<String, Object> settings) {
     for (var entry in settings.entries) {
       _settings[entry.key] = entry.value;
     }

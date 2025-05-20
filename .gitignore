@@ -11,6 +11,6 @@ venv/
 
 # other
 config.ini
-my_config.ini
+.settings/
 
 build/

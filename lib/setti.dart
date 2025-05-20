@@ -14,9 +14,9 @@ export 'src/exceptions/exceptions.dart';
 export 'src/setti.dart';
 export 'src/setti_manager.dart';
 
-export 'src/storage/local/storages/vm_storages.dart'
+/* export 'src/storage/local/storages/vm_storages.dart'
     if (dart.library.js) 'src/storage/local/storages/web_storages.dart'
-    if (dart.library.html) 'src/storage/local/storages/web_storages.dart';
+    if (dart.library.html) 'src/storage/local/storages/web_storages.dart'; */
 
 export 'src/platform/setti.dart'
     if (dart.library.io) 'src/platform/os/setti.dart'

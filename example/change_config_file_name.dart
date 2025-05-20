@@ -71,10 +71,14 @@ class AppConfig extends Setti with Ini {
   String get name => "APP_CONFIG";
 
   @override
+  String get path =>
+      "${Directory.current.path}/.settings"; // this change the path to settings file
+
+  @override
   SettiConfig get config => storageConfig.copyWith(
       useModelPrefix: false,
       useSettiPrefix: true,
-      storageFileName: "my_config");
+      storageFileName: "my_config"); // this change the filename
 
   static const counter = Setting(
     id: 'COUNTER',

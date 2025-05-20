@@ -108,23 +108,31 @@ class SettiConfig {
   const SettiConfig({
     this.useSettiPrefix = true,
     this.useModelPrefix = true,
+    this.useFlutterPrefix = true,
     this.globalLoadModeRule = LoadMode.preload,
     this.delimiter = Delimiter.dot,
     this.caseFormat = CaseFormat.preserve,
     this.storageFileName = 'config',
   });
 
-  /// Чи перекривати префіксом "setti." проєктні налаштування
+  /// Чи перекривати префіксом `setti` проєктні налаштування
   final bool useSettiPrefix;
 
   /// Чи додавати префікс моделі до налаштування.
   ///
-  /// Корисно визначити false коли необхідно використовувати назву моделі як секцію
+  /// Корисно визначити `false` коли необхідно використовувати назву моделі як секцію
   final bool useModelPrefix;
+
+  /// Чи додавати префікс `flutter` до ключів у SharedPreferences. За замовченням це `true`, і працює
+  /// виключно з SharedPreference.
+  ///
+  /// `true`, якщо хочеш, щоб всі ключі автоматично отримували префікс `flutter`.
+  final bool useFlutterPrefix;
 
   /// Глобальна конфігурація для логіки завантаження налаштувань
   final LoadMode globalLoadModeRule;
 
+  /// Який роздільник використовувати для префіксів
   final Delimiter delimiter;
 
   /// Формат назв ідентифікаторів налаштувань.
@@ -134,7 +142,7 @@ class SettiConfig {
   /// Якщо `uppercase` - то всі ідентифікатори будуть зазначені у верхньому регістрі.
   final CaseFormat caseFormat;
 
-  /// Назва файлу локального зберігання конфігурації якщо це потребує сховище.
+  /// Назва файлу локального зберігання конфігурації якщо це передбачено сховищем.
   final String storageFileName;
 
   //final bool showDebugWith
@@ -142,6 +150,7 @@ class SettiConfig {
   SettiConfig copyWith({
     bool? useSettiPrefix,
     bool? useModelPrefix,
+    bool? useFlutterPrefix,
     LoadMode? globalLoadModeRule,
     Delimiter? delimiter,
     CaseFormat? caseFormat,
@@ -151,6 +160,7 @@ class SettiConfig {
     return SettiConfig(
       useSettiPrefix: useSettiPrefix ?? this.useModelPrefix,
       useModelPrefix: useModelPrefix ?? this.useModelPrefix,
+      useFlutterPrefix: useFlutterPrefix ?? this.useFlutterPrefix,
       globalLoadModeRule: globalLoadModeRule ?? this.globalLoadModeRule,
       delimiter: delimiter ?? this.delimiter,
       caseFormat: caseFormat ?? this.caseFormat,
@@ -162,6 +172,7 @@ class SettiConfig {
 class BaseSettiLayer extends SettiLayer {
   final Setting<bool> useSettiPrefix;
   final Setting<bool> useModelPrefix;
+  final Setting<bool> useFlutterPrefix;
   final Setting<String> storageFileName;
 
   final EnumSetting<LoadMode> globalLoadModeRule;
@@ -171,6 +182,7 @@ class BaseSettiLayer extends SettiLayer {
   const BaseSettiLayer({
     required this.useSettiPrefix,
     required this.useModelPrefix,
+    required this.useFlutterPrefix,
     required this.storageFileName,
     required this.globalLoadModeRule,
     required this.delimiter,
@@ -181,6 +193,7 @@ class BaseSettiLayer extends SettiLayer {
   List<BaseSetting> get settings => [
         useSettiPrefix,
         useModelPrefix,
+        useFlutterPrefix,
         globalLoadModeRule,
         delimiter,
         caseFormat,
@@ -193,6 +206,7 @@ class BaseSettiLayer extends SettiLayer {
   factory BaseSettiLayer.fromValues({
     bool useSettiPrefix = true,
     bool useModelPrefix = true,
+    bool useFlutterPrefix = true,
     String storageFileName = 'config',
     SaveMode globalSaveModeRule = SaveMode.session,
     LoadMode globalLoadModeRule = LoadMode.preload,
@@ -204,6 +218,8 @@ class BaseSettiLayer extends SettiLayer {
           Setting(id: 'useSettiPrefix', defaultValue: useSettiPrefix),
       useModelPrefix:
           Setting(id: 'useModelPrefix', defaultValue: useModelPrefix),
+      useFlutterPrefix:
+          Setting(id: 'useFlutterPrefix', defaultValue: useFlutterPrefix),
       storageFileName:
           Setting(id: 'storageFileName', defaultValue: storageFileName),
       globalLoadModeRule: EnumSetting(
@@ -222,6 +238,7 @@ class BaseSettiLayer extends SettiLayer {
   static const BaseSettiLayer defaultConfig = BaseSettiLayer(
     useSettiPrefix: Setting(id: 'useSettiPrefix', defaultValue: true),
     useModelPrefix: Setting(id: 'useModelPrefix', defaultValue: true),
+    useFlutterPrefix: Setting(id: 'useFlutterPrefix', defaultValue: true),
     storageFileName: Setting(id: 'storageFileName', defaultValue: 'config'),
     globalLoadModeRule: EnumSetting(
         id: 'globalLoadModeRule',
@@ -238,6 +255,7 @@ class BaseSettiLayer extends SettiLayer {
   BaseSettiLayer copyWith({
     bool? useSettiPrefix,
     bool? useModelPrefix,
+    bool? useFlutterPrefix,
     String? storageFileName,
     SaveMode? globalSaveModeRule,
     LoadMode? globalLoadModeRule,
@@ -251,6 +269,9 @@ class BaseSettiLayer extends SettiLayer {
       useModelPrefix: Setting(
           id: this.useModelPrefix.id,
           defaultValue: useModelPrefix ?? this.useModelPrefix.defaultValue),
+      useFlutterPrefix: Setting(
+          id: this.useFlutterPrefix.id,
+          defaultValue: useFlutterPrefix ?? this.useFlutterPrefix.defaultValue),
       storageFileName: Setting(
           id: this.storageFileName.id,
           defaultValue: storageFileName ?? this.storageFileName.defaultValue),
@@ -274,6 +295,7 @@ class BaseSettiLayer extends SettiLayer {
 class BaseSettiLayerBuilder {
   Setting<bool>? useSettiPrefix;
   Setting<bool>? useModelPrefix;
+  Setting<bool>? useFlutterPrefix;
   Setting<String>? storageFileName;
   EnumSetting<SaveMode>? globalSaveModeRule;
   EnumSetting<LoadMode>? globalLoadModeRule;
@@ -283,6 +305,7 @@ class BaseSettiLayerBuilder {
   BaseSettiLayerBuilder({
     bool? useSettiPrefix,
     bool? useModelPrefix,
+    bool? useFlutterPrefix,
     String? storageFileName,
     SaveMode? globalSaveModeRule,
     LoadMode? globalLoadModeRule,
@@ -294,6 +317,9 @@ class BaseSettiLayerBuilder {
         : null;
     this.useModelPrefix = useModelPrefix != null
         ? Setting(id: 'useModelPrefix', defaultValue: useModelPrefix)
+        : null;
+    this.useFlutterPrefix = useFlutterPrefix != null
+        ? Setting(id: 'useFlutterPrefix', defaultValue: useFlutterPrefix)
         : null;
     this.storageFileName = storageFileName != null
         ? Setting(id: 'storageFileName', defaultValue: storageFileName)
@@ -328,6 +354,8 @@ class BaseSettiLayerBuilder {
           const Setting(id: 'useSettiPrefix', defaultValue: true),
       useModelPrefix: useModelPrefix ??
           const Setting(id: 'useModelPrefix', defaultValue: true),
+      useFlutterPrefix: useFlutterPrefix ??
+          const Setting(id: 'useFlutterPrefix', defaultValue: true),
       storageFileName: storageFileName ??
           const Setting(id: 'storageFileName', defaultValue: 'config'),
       globalLoadModeRule: globalLoadModeRule ??
