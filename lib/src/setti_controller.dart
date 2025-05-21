@@ -241,17 +241,24 @@ class SettiController implements ISettingsController {
   }
 
   Future<void> _restoreSettings(Iterable<Setting> localSettings) async {
-    List<Setting> settingsToInit = [];
+    HashMap<String, Object> settingsToInit = HashMap();
     for (Setting setting in localSettings) {
       var value = await _storage.getSetting(setting.id, setting.defaultValue);
+      /* var isValid = setting.validate(value);
+      if (!isValid) {
+        throw ValidationException(
+            msg: "Setting '${setting.id}' has invalid value: $value",
+            solutionMsg:
+                "Check the default or stored value for '${setting.id}'.");
+      } */
       if (value == null) {
-        if (setting.declarative == false) {
+        if (!setting.declarative) {
           throw ControllerException(
               msg: "Setting '${setting.id}' must be stored locally.\n",
               solutionMsg:
                   "Ensure that '${setting.id}' is stored in local storage.");
         } else {
-          settingsToInit.add(setting);
+          settingsToInit[setting.id] = setting.defaultValue;
         }
       } else {
         _session.setSetting(setting.id, value);
@@ -273,14 +280,9 @@ class SettiController implements ISettingsController {
     }
   }
 
-  Future<void> _initLocalSettings(List<Setting> localSettings) async {
-    var settingsToStore = <String, Object>{};
-
-    for (Setting setting in localSettings) {
-      settingsToStore[setting.id] = setting.defaultValue;
-    }
-    await _storage.setSettings(settingsToStore);
-    _session.setSettings(settingsToStore);
+  Future<void> _initLocalSettings(HashMap<String, Object> localSettings) async {
+    await _storage.setSettings(localSettings);
+    _session.setSettings(localSettings);
   }
 
   /// Creates a snapshot of current local settings to track active keys.

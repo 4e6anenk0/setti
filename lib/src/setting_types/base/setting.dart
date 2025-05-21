@@ -1,4 +1,5 @@
-import 'package:setti/src/setting_types/storage_rules.dart';
+import '../../validation/validators/base_validator.dart';
+import '../storage_rules.dart';
 
 abstract class BaseSetting<T> {
   const BaseSetting({
@@ -25,14 +26,9 @@ abstract class BaseSetting<T> {
   /// or should be loaded from an external source such as a file, api (`false`).
   final bool declarative;
 
-  final bool Function(T)? validator;
+  final Validator<T>? validator;
 
-  bool validate(T value) {
-    if (validator != null) {
-      return validator!(value);
-    }
-    return true;
-  }
+  bool validate(T value) => validator?.call(value) ?? true;
 
   @override
   bool operator ==(Object other) =>
@@ -64,6 +60,7 @@ class Setting<T> extends BaseSetting<T> {
     required super.defaultValue,
     super.saveMode,
     super.declarative,
+    super.validator,
   });
 
   @override
@@ -92,17 +89,19 @@ class Setting<T> extends BaseSetting<T> {
     T? defaultValue,
     SaveMode? saveMode,
     bool? declarative,
+    Validator<T>? validator,
   }) {
-    if (defaultValue == this.defaultValue &&
+    /* if (defaultValue == this.defaultValue &&
         saveMode == this.saveMode &&
         declarative == this.declarative) {
       return this;
-    }
+    } */ // It's potentially good, but it doesn't work effectively with validator types.
     return Setting(
       defaultValue: defaultValue ?? this.defaultValue,
       id: id,
       saveMode: saveMode ?? this.saveMode,
       declarative: declarative ?? this.declarative,
+      validator: validator ?? this.validator,
     );
   }
 }

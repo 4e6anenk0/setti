@@ -146,9 +146,9 @@ void main() async {
 
   print(config[AppConfig][AppConfig.counter]);
 
-  config[AppConfig][AppConfig.counter] = 1;
+  config[AppConfig][AppConfig.counter] = 2;
 
-  await config[AppConfig].update(AppConfig.counter.copyWith(defaultValue: 10));
+  await config[AppConfig].update(AppConfig.counter.copyWith(defaultValue: 12));
 
   await config[AppConfig].match();
 }

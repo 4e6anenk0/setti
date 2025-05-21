@@ -111,38 +111,4 @@ class AdditionalLayer extends SettiLayer {
 void main() async {
   final config = Config();
   await config.init();
-
-  print(config[AppConfig][AppConfig.counter]);
-
-  print(config.getConfig(AppConfig).get(AppConfig.counter));
-
-  print(config.getConfig(AppConfig).getCurrentPlatform());
-
-  print(config[AppConfig].get(AppConfig.generalSetting));
-
-  //config[AppConfig][AppConfig.counter] += 10;
-
-  //config[AppConfig][AppConfig.generalSetting] = 'new string';
-  /* config[AppConfig]
-      .update(AppConfig.generalSetting.copyWith(defaultValue: 'new string')); */
-
-  config[AppConfig].mut(AppConfig.generalSetting, (value) => "new string");
-
-  //await config[AppConfig].match();
-
-  print(config[AppConfig][AppConfig.counter]);
-
-  print(config[AppConfig].appliedLayers);
-
-  config[AppConfig].applyLayer(AdditionalLayer());
-
-  print(config[AppConfig].appliedLayers);
-
-  print(config[AppConfig][AppConfig.counter]);
-
-  config[AppConfig][AppConfig.counter] = 1;
-
-  await config[AppConfig].update(AppConfig.counter.copyWith(defaultValue: 10));
-
-  await config[AppConfig].match();
 }
