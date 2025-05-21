@@ -12,5 +12,6 @@ venv/
 # other
 config.ini
 .settings/
+benchmarks/
 
 build/
