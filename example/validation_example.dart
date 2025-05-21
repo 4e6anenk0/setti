@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:setti/setti.dart';
+import 'package:setti/src/validation/validators/num_validators.dart';
+import 'package:setti/src/validation/validators/string_validators.dart';
 import 'package:setti_ini/setti_ini.dart';
 
 class LinuxConfig extends SettiLayer {
@@ -74,24 +76,26 @@ class AppConfig extends Setti with Ini {
   SettiConfig get config =>
       storageConfig.copyWith(useModelPrefix: false, useSettiPrefix: true);
 
-  static const counter = Setting(
+  static const counter = Setting<int>(
     id: 'COUNTER',
     defaultValue: 0,
     saveMode: SaveMode.local,
     //declarative: false,
+    validator: MinValueValidator(0),
   );
 
-  static const pathToProfiler = Setting(
+  static const pathToProfiler = Setting<String>(
     id: 'PROFILER',
-    defaultValue: '',
+    defaultValue: '~/',
     saveMode: SaveMode.local,
+    validator: NonEmptyValidator(),
   );
 
-  static const generalSetting = Setting(
-    id: 'GENERAL',
-    defaultValue: 'general',
-    saveMode: SaveMode.local,
-  );
+  static const generalSetting = Setting<String>(
+      id: 'GENERAL',
+      defaultValue: 'general',
+      saveMode: SaveMode.local,
+      validator: OneOfValidator({'general', 'advanced', 'custom'}));
 }
 
 class Config extends ConfigManager {
@@ -111,4 +115,14 @@ class AdditionalLayer extends SettiLayer {
 void main() async {
   final config = Config();
   await config.init();
+
+  //config[AppConfig][AppConfig.counter] = -1; // Validation Failed
+  //config[AppConfig][AppConfig.pathToProfiler] = ''; // Validation Failed
+  //config[AppConfig][AppConfig.generalSetting] = 'other'; // Validation Failed
+
+  config[AppConfig][AppConfig.counter] = 1; // Validation Pass
+  config[AppConfig][AppConfig.pathToProfiler] = '/opt'; // Validation Pass
+  config[AppConfig][AppConfig.generalSetting] = 'custom'; // Validation Pass
+  print(config[AppConfig].getAll());
+  //await config[AppConfig].match();
 }

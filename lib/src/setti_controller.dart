@@ -211,6 +211,14 @@ class SettiController implements ISettingsController {
       if (!setting.declarative) {
         notDeclarativeSettings.add(setting);
       } else {
+        if (!setting.validate(setting.defaultValue)) {
+          final explanation = setting.validator?.explain(setting.defaultValue);
+          throw ValidationException(
+            msg: explanation ??
+                "Invalid value for setting '${setting.id}': ${setting.defaultValue}",
+            solutionMsg: "Fix the value",
+          );
+        }
         _session.setSetting(setting.id, setting.defaultValue);
       }
     }
@@ -226,17 +234,33 @@ class SettiController implements ISettingsController {
   /// Method to restore data from local storage
   Future<void> _restoreSetting(Setting setting) async {
     var value = await _storage.getSetting(setting.id, setting.defaultValue);
-    if (value == null) {
+    if (value != null) {
+      if (!setting.validate(value)) {
+        final explanation = setting.validator?.explain(value);
+        throw ValidationException(
+          msg: explanation ??
+              "Invalid value for setting '${setting.id}': $value",
+          solutionMsg: "Fix the value",
+        );
+      }
+      _session.setSetting(setting.id, value);
+    } else {
+      if (!setting.validate(setting.defaultValue)) {
+        final explanation = setting.validator?.explain(setting.defaultValue);
+        throw ValidationException(
+          msg: explanation ??
+              "Invalid value for setting '${setting.id}': ${setting.defaultValue}",
+          solutionMsg: "Fix the value",
+        );
+      }
       if (setting.declarative == false) {
         throw ControllerException(
             msg: "Setting '${setting.id}' must be stored locally.\n",
             solutionMsg:
                 "Ensure that '${setting.id}' is stored in local storage.");
-      } else {
-        await _initSetting(setting);
       }
-    } else {
-      _session.setSetting(setting.id, value);
+
+      await _initSetting(setting);
     }
   }
 
@@ -244,24 +268,35 @@ class SettiController implements ISettingsController {
     HashMap<String, Object> settingsToInit = HashMap();
     for (Setting setting in localSettings) {
       var value = await _storage.getSetting(setting.id, setting.defaultValue);
-      /* var isValid = setting.validate(value);
-      if (!isValid) {
-        throw ValidationException(
-            msg: "Setting '${setting.id}' has invalid value: $value",
-            solutionMsg:
-                "Check the default or stored value for '${setting.id}'.");
-      } */
-      if (value == null) {
+
+      if (value != null) {
+        if (!setting.validate(value)) {
+          final explanation = setting.validator?.explain(value);
+          throw ValidationException(
+            msg: explanation ??
+                "Invalid value for setting '${setting.id}': $value",
+            solutionMsg: "Fix the value",
+          );
+        }
+        _session.setSetting(setting.id, value);
+      } else {
+        if (!setting.validate(setting.defaultValue)) {
+          final explanation = setting.validator?.explain(setting.defaultValue);
+          throw ValidationException(
+            msg: explanation ??
+                "Invalid value for setting '${setting.id}': ${setting.defaultValue}",
+            solutionMsg: "Fix the value",
+          );
+        }
+
         if (!setting.declarative) {
           throw ControllerException(
               msg: "Setting '${setting.id}' must be stored locally.\n",
               solutionMsg:
                   "Ensure that '${setting.id}' is stored in local storage.");
-        } else {
-          settingsToInit[setting.id] = setting.defaultValue;
         }
-      } else {
-        _session.setSetting(setting.id, value);
+
+        settingsToInit[setting.id] = setting.defaultValue;
       }
     }
 
@@ -331,6 +366,14 @@ class SettiController implements ISettingsController {
       {bool sessionOnly = false}) {
     if (setting.defaultValue !=
         _session.getSetting(setting.id, setting.defaultValue)) {
+      if (!setting.validate(setting.defaultValue)) {
+        final explanation = setting.validator?.explain(setting.defaultValue);
+        throw ValidationException(
+          msg: explanation ??
+              "Invalid value for setting '${setting.id}': ${setting.defaultValue}",
+          solutionMsg: "Fix the value",
+        );
+      }
       var adaptedSetting = _converter.convertTo(setting);
       _session.setSetting(adaptedSetting.id, adaptedSetting.defaultValue);
 

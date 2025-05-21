@@ -128,18 +128,20 @@ abstract class BaseSetti
         await _storage.init();
       }
 
+      var conf = config;
+
       List<Type> types =
           storages.map((storage) => storage.runtimeType).toList();
 
       final overlay =
-          StorageOverlay(storages: types, prefix: configurePrefix());
+          StorageOverlay(storages: types, prefix: configurePrefix(conf));
 
       _controller = await SettiController.consist(
         converter: converter,
         settings: settings,
         storageOverlay: overlay,
         isDebug: debug,
-        caseFormat: config.caseFormat,
+        caseFormat: conf.caseFormat,
       );
 
       _isInitialized = true;
@@ -150,18 +152,18 @@ abstract class BaseSetti
     }
   }
 
-  String? configurePrefix() {
+  String? configurePrefix(SettiConfig conf) {
     if (prefix != null) {
       return prefix!;
     } else {
       var buffer = StringBuffer();
-      if (config.useSettiPrefix) {
+      if (conf.useSettiPrefix) {
         buffer.write(
-            '${config.caseFormat.apply('setti')}${config.delimiter.delimiter}');
+            '${conf.caseFormat.apply('setti')}${conf.delimiter.delimiter}');
       }
       if (config.useModelPrefix) {
-        buffer.write(
-            "${config.caseFormat.apply(name)}${config.delimiter.delimiter}");
+        buffer
+            .write("${conf.caseFormat.apply(name)}${conf.delimiter.delimiter}");
       }
 
       if (buffer.isNotEmpty) {
