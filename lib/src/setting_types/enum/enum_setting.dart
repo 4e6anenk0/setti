@@ -1,5 +1,5 @@
+import 'package:checkit/checkit.dart';
 import 'package:setti/src/setting_types/storage_rules.dart';
-import 'package:setti/src/validation/validators/base_validator.dart';
 
 import '../base/setting.dart';
 
@@ -29,7 +29,7 @@ class EnumSetting<T extends Enum> extends BaseSetting<T> {
     required super.id,
     super.saveMode,
     super.declarative,
-    super.validator,
+    super.validators,
   });
 
   @override
@@ -43,7 +43,7 @@ class EnumSetting<T extends Enum> extends BaseSetting<T> {
     T? defaultValue,
     SaveMode? saveMode,
     bool? declarative,
-    Validator<T>? validator,
+    List<Validator<T>>? validators,
   }) {
     /* if (values == this.values &&
         defaultValue == this.defaultValue &&
@@ -57,7 +57,7 @@ class EnumSetting<T extends Enum> extends BaseSetting<T> {
       id: id,
       saveMode: saveMode ?? this.saveMode,
       declarative: declarative ?? this.declarative,
-      validator: validator ?? this.validator,
+      validators: validators ?? this.validators,
     );
   }
 }

@@ -211,11 +211,11 @@ class SettiController implements ISettingsController {
       if (!setting.declarative) {
         notDeclarativeSettings.add(setting);
       } else {
-        if (!setting.validate(setting.defaultValue)) {
-          final explanation = setting.validator?.explain(setting.defaultValue);
+        var validation = setting.validate(setting.defaultValue);
+        if (!validation.isValid) {
+          //final explanation = setting.validator?.explain(setting.defaultValue);
           throw ValidationException(
-            msg: explanation ??
-                "Invalid value for setting '${setting.id}': ${setting.defaultValue}",
+            msg: validation.errors.toString(),
             solutionMsg: "Fix the value",
           );
         }
@@ -235,21 +235,21 @@ class SettiController implements ISettingsController {
   Future<void> _restoreSetting(Setting setting) async {
     var value = await _storage.getSetting(setting.id, setting.defaultValue);
     if (value != null) {
-      if (!setting.validate(value)) {
-        final explanation = setting.validator?.explain(value);
+      var validation = setting.validate(value);
+      if (!validation.isValid) {
+        //final explanation = setting.validator?.explain(value);
         throw ValidationException(
-          msg: explanation ??
-              "Invalid value for setting '${setting.id}': $value",
+          msg: validation.errors.toString(),
           solutionMsg: "Fix the value",
         );
       }
       _session.setSetting(setting.id, value);
     } else {
-      if (!setting.validate(setting.defaultValue)) {
-        final explanation = setting.validator?.explain(setting.defaultValue);
+      var validation = setting.validate(setting.defaultValue);
+      if (!validation.isValid) {
+        //final explanation = setting.validator?.explain(setting.defaultValue);
         throw ValidationException(
-          msg: explanation ??
-              "Invalid value for setting '${setting.id}': ${setting.defaultValue}",
+          msg: validation.errors.toString(),
           solutionMsg: "Fix the value",
         );
       }
@@ -270,21 +270,21 @@ class SettiController implements ISettingsController {
       var value = await _storage.getSetting(setting.id, setting.defaultValue);
 
       if (value != null) {
-        if (!setting.validate(value)) {
-          final explanation = setting.validator?.explain(value);
+        var validation = setting.validate(value);
+        if (!validation.isValid) {
+          //final explanation = setting.validator?.explain(value);
           throw ValidationException(
-            msg: explanation ??
-                "Invalid value for setting '${setting.id}': $value",
+            msg: validation.errors.toString(),
             solutionMsg: "Fix the value",
           );
         }
         _session.setSetting(setting.id, value);
       } else {
-        if (!setting.validate(setting.defaultValue)) {
-          final explanation = setting.validator?.explain(setting.defaultValue);
+        var validation = setting.validate(setting.defaultValue);
+        if (!validation.isValid) {
+          //final explanation = setting.validator?.explain(setting.defaultValue);
           throw ValidationException(
-            msg: explanation ??
-                "Invalid value for setting '${setting.id}': ${setting.defaultValue}",
+            msg: validation.errors.toString(),
             solutionMsg: "Fix the value",
           );
         }
@@ -366,12 +366,12 @@ class SettiController implements ISettingsController {
       {bool sessionOnly = false}) {
     if (setting.defaultValue !=
         _session.getSetting(setting.id, setting.defaultValue)) {
-      if (!setting.validate(setting.defaultValue)) {
-        final explanation = setting.validator?.explain(setting.defaultValue);
+      var validation = setting.validate(setting.defaultValue);
+      if (!validation.isValid) {
+        //final explanation = setting.validator?.explain(setting.defaultValue);
         throw ValidationException(
-          msg: explanation ??
-              "Invalid value for setting '${setting.id}': ${setting.defaultValue}",
-          solutionMsg: "Fix the value",
+          msg: validation.errors.toString(),
+          solutionMsg: "Fix the value: ${setting.defaultValue}",
         );
       }
       var adaptedSetting = _converter.convertTo(setting);

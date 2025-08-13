@@ -14,8 +14,6 @@ import 'storage/storage_overlay.dart';
 
 abstract class BaseSetti
     implements ISettingsController, IMatchableSettings, ILayerController {
-  BaseSetti();
-
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
 
@@ -81,9 +79,10 @@ abstract class BaseSetti
 
     final currentPlatform = getCurrentPlatform();
     List<BaseSetting> combinedSettings = List.from(settings);
-    if (layers.isNotEmpty) {
-      final applicableFactories =
-          layers.where((desc) => desc.platforms.contains(currentPlatform));
+    var initialLayers = [...layers];
+    if (initialLayers.isNotEmpty) {
+      final applicableFactories = initialLayers
+          .where((desc) => desc.platforms.contains(currentPlatform));
 
       for (final desc in applicableFactories) {
         final layer = desc.factory();
@@ -130,8 +129,7 @@ abstract class BaseSetti
 
       var conf = config;
 
-      List<Type> types =
-          storages.map((storage) => storage.runtimeType).toList();
+      List<String> types = storages.map((storage) => storage.typeId).toList();
 
       final overlay =
           StorageOverlay(storages: types, prefix: configurePrefix(conf));

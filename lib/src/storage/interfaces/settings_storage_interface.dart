@@ -5,6 +5,8 @@ import 'storage_worker_interface.dart';
 abstract class ISettingsStorage implements ISettingsWorker {
   FutureOr<bool> init();
 
+  String get typeId;
+
   /// Sets multiple settings in a single operation.
   ///
   /// Implementations that support batch operations should override
@@ -27,5 +29,5 @@ abstract class ISettingsStorage implements ISettingsWorker {
     }
   }
 
-  String get id;
+  //String get id;
 }

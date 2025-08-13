@@ -18,6 +18,9 @@ class IniStorage extends ISettingsStorage {
 
   late final File file;
 
+  @override
+  String get typeId => 'ini';
+
   Future<void> _loadConfig() async {
     try {
       final lines = await file.readAsLines();
@@ -159,12 +162,10 @@ Supported values are: bool, int, double, String, List<String>""",
   }
 
   @override
-  String get id => runtimeType.toString();
-
-  @override
   bool operator ==(Object other) =>
-      identical(this, other) || other is ISettingsStorage && id == other.id;
+      identical(this, other) ||
+      other is ISettingsStorage && typeId == other.typeId;
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode => typeId.hashCode;
 }

@@ -1,25 +1,26 @@
 import 'package:checkit/checkit.dart';
 import 'package:checkit/checkit_core.dart';
+import 'package:setti_core/src/setting/setting_key.dart';
 
-import '../storage_rules.dart';
+import '../rules/storage_rules.dart';
 
 abstract class BaseSetting<T> {
   const BaseSetting({
     required this.id,
-    required this.defaultValue,
+    this.defaultValue,
+    this.exampleValue,
     this.saveMode = SaveMode.session,
     this.declarative = true,
-    this.validators = const [],
+    this.validators,
   });
-
-  /// Defines the type of setting.
-  String get type;
 
   /// A unique identifier for the setting, typically used as a key.
   final String id;
 
   /// The default value assigned to the setting when no other value is provided.
-  final T defaultValue;
+  final T? defaultValue;
+
+  final T? exampleValue;
 
   /// Optional configuration that overrides the global save mode for this setting.
   final SaveMode saveMode;
@@ -28,11 +29,7 @@ abstract class BaseSetting<T> {
   /// or should be loaded from an external source such as a file, api (`false`).
   final bool declarative;
 
-  final List<Validator<T>> validators;
-
-  ValidationResult validate(T value) =>
-      AndValidator(validators, ValidationContext.defaultContext())
-          .validate(value);
+  final List<Validator<T>>? validators;
 
   @override
   bool operator ==(Object other) =>
@@ -61,14 +58,12 @@ abstract class BaseSetting<T> {
 class Setting<T> extends BaseSetting<T> {
   const Setting({
     required super.id,
-    required super.defaultValue,
+    super.defaultValue,
+    super.exampleValue,
     super.saveMode,
     super.declarative,
     super.validators,
   });
-
-  @override
-  String get type => 'Setting';
 
   /// Creates a new setting instance with modified values,
   /// preserving the immutability of the original object.
@@ -91,6 +86,7 @@ class Setting<T> extends BaseSetting<T> {
   /// we can copy an existing one while applying necessary changes.
   Setting<T> copyWith({
     T? defaultValue,
+    T? exampleValue,
     SaveMode? saveMode,
     bool? declarative,
     List<Validator<T>>? validators,
@@ -102,6 +98,7 @@ class Setting<T> extends BaseSetting<T> {
     } */ // It's potentially good, but it doesn't work effectively with validator types.
     return Setting(
       defaultValue: defaultValue ?? this.defaultValue,
+      exampleValue: exampleValue ?? this.exampleValue,
       id: id,
       saveMode: saveMode ?? this.saveMode,
       declarative: declarative ?? this.declarative,

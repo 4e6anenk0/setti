@@ -46,9 +46,9 @@ If the package is already installed, make sure you have mixed it with your custo
   }
 
   /// Метод який дозволяє отримати воркер який працює з обмеженою множиною сховищ
-  ISettingsWorker getWorker(List<Type> storageTypes) {
-    Iterable<ISettingsStorage> neededStorages = _storages
-        .where((storage) => storageTypes.contains(storage.runtimeType));
+  ISettingsWorker getWorker(List<String> storageTypeIds) {
+    Iterable<ISettingsStorage> neededStorages =
+        _storages.where((storage) => storageTypeIds.contains(storage.typeId));
 
     if (neededStorages.length == 1) {
       return SingleSettingsStorage(neededStorages.first);
@@ -62,8 +62,7 @@ If the package is already installed, make sure you have mixed it with your custo
     }
   }
 
-  ISettingsStorage? getStorage(Type typeOfStorage) {
-    return _storages
-        .firstWhere((storage) => storage.runtimeType == typeOfStorage);
+  ISettingsStorage? getStorage(String typeId) {
+    return _storages.firstWhere((storage) => storage.typeId == typeId);
   }
 }

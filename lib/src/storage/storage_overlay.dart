@@ -11,7 +11,7 @@ import 'storage.dart';
 @internal
 class StorageOverlay implements ISettingsWorker {
   StorageOverlay({
-    required List<Type> storages,
+    required List<String> storages,
     String? prefix,
     Type? bind,
   }) : _prefix = prefix {

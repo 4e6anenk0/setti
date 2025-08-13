@@ -16,6 +16,7 @@ dependencies:
   ini: ^2.1.0
   meta: ^1.16.0
   path: ^1.9.1
+  checkit: ^1.0.1
 
 dev_dependencies:
   lints: ^5.0.0

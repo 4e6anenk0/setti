@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'dart:collection';
 
 import '../setti.dart';
 
 abstract class ConfigManager {
-  final Map<Type, BaseSetti> _initializedConfigs = {};
+  final HashMap<Type, BaseSetti> _initializedConfigs = HashMap();
 
   final List<String> _notInitializedConfigs = [];
 
